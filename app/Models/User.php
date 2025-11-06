@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'avatar_path',
+        'weight',
+        'height',
+        'age',
+        'goal',
+        'trainer_id',
     ];
 
     /**
@@ -43,6 +51,52 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'weight' => 'decimal:2',
+            'height' => 'decimal:2',
         ];
+    }
+
+    // Relationships
+    public function trainer()
+    {
+        return $this->belongsTo(User::class, 'trainer_id');
+    }
+
+    public function students()
+    {
+        return $this->hasMany(User::class, 'trainer_id');
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function calendarEvents()
+    {
+        return $this->hasMany(CalendarEvent::class);
+    }
+
+    public function viewLogs()
+    {
+        return $this->hasMany(ViewLog::class);
+    }
+
+    public function assignments()
+    {
+        return $this->hasMany(UserAssignment::class);
+    }
+
+    // Attributes
+    public function getAvatarUrlAttribute()
+    {
+        return $this->avatar_path
+            ? url('storage/' . $this->avatar_path)
+            : null;
     }
 }

@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('nutrition_plans', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->integer('calories');
+            $table->integer('protein');
+            $table->integer('carbs');
+            $table->integer('fats');
+            $table->string('thumbnail_path')->nullable();
+            $table->foreignId('trainer_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+
+            $table->index('trainer_id');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('nutrition_plans');
+    }
+};
