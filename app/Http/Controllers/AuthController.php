@@ -72,4 +72,48 @@ class AuthController extends Controller
     {
         return response()->json($request->user()->load('trainer'));
     }
+
+    /**
+     * Get list of users for chat (trainers get their students, admins get all users)
+     */
+    public function getChatUsers(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->role === 'student') {
+            // Students can only chat with their trainer
+            if (!$user->trainer_id) {
+                return response()->json([]);
+            }
+
+            $trainer = User::select('id', 'name', 'email', 'role', 'avatar_path')
+                ->find($user->trainer_id);
+
+            return response()->json($trainer ? [$trainer] : []);
+        }
+
+        if ($user->role === 'trainer') {
+            // Trainers can chat with their students
+            $students = User::select('id', 'name', 'email', 'role', 'avatar_path')
+                ->where('trainer_id', $user->id)
+                ->where('role', 'student')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json($students);
+        }
+
+        if ($user->role === 'admin') {
+            // Admins can chat with everyone
+            $users = User::select('id', 'name', 'email', 'role', 'avatar_path')
+                ->where('id', '!=', $user->id) // Exclude self
+                ->orderBy('role')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json($users);
+        }
+
+        return response()->json([]);
+    }
 }

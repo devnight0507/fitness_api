@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/users/chat', [AuthController::class, 'getChatUsers']);
 
     // Home / Dashboard
     Route::get('/dashboard', [HomeController::class, 'dashboard']);
