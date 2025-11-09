@@ -152,6 +152,131 @@ class WorkoutController extends Controller
     }
 
     /**
+     * Update a workout (admin only)
+     */
+    public function update(Request $request, $id)
+    {
+        $user = $request->user();
+
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can update workouts'
+            ], 403);
+        }
+
+        $workout = Workout::find($id);
+
+        if (!$workout) {
+            return response()->json([
+                'message' => 'Workout not found'
+            ], 404);
+        }
+
+        // Check if admin owns this workout
+        if ($workout->admin_id !== $user->id) {
+            return response()->json([
+                'message' => 'You can only update your own workouts'
+            ], 403);
+        }
+
+        $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'category' => 'sometimes|required|in:Gym,Home,Outdoor,HIIT,Cardio,Strength',
+            'duration' => 'sometimes|required|string|max:50',
+            'level' => 'sometimes|required|in:Beginner,Intermediate,Advanced',
+            'description' => 'nullable|string',
+            'thumbnail_path' => 'nullable|string',
+            'video_path' => 'nullable|string',
+            'video_duration' => 'nullable|integer',
+            'exercises' => 'nullable|array',
+            'exercises.*.name' => 'required|string',
+            'exercises.*.sets' => 'nullable|string',
+            'exercises.*.reps' => 'nullable|string',
+            'exercises.*.rest' => 'nullable|string',
+            'exercises.*.order_index' => 'nullable|integer',
+        ]);
+
+        $workout->update($request->only([
+            'title',
+            'category',
+            'duration',
+            'level',
+            'description',
+            'thumbnail_path',
+            'video_path',
+            'video_duration',
+        ]));
+
+        // Update exercises if provided
+        if ($request->has('exercises')) {
+            // Delete old exercises
+            $workout->exercises()->delete();
+
+            // Create new exercises
+            foreach ($request->exercises as $index => $exercise) {
+                $workout->exercises()->create([
+                    'name' => $exercise['name'],
+                    'sets' => $exercise['sets'] ?? null,
+                    'reps' => $exercise['reps'] ?? null,
+                    'rest' => $exercise['rest'] ?? null,
+                    'order_index' => $exercise['order_index'] ?? $index,
+                ]);
+            }
+        }
+
+        return response()->json(
+            $workout->load('exercises')
+        );
+    }
+
+    /**
+     * Delete a workout (admin only)
+     */
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can delete workouts'
+            ], 403);
+        }
+
+        $workout = Workout::find($id);
+
+        if (!$workout) {
+            return response()->json([
+                'message' => 'Workout not found'
+            ], 404);
+        }
+
+        // Check if admin owns this workout
+        if ($workout->admin_id !== $user->id) {
+            return response()->json([
+                'message' => 'You can only delete your own workouts'
+            ], 403);
+        }
+
+        // Delete associated video file if exists
+        if ($workout->video_path) {
+            \Storage::disk('public')->delete($workout->video_path);
+        }
+
+        // Delete exercises
+        $workout->exercises()->delete();
+
+        // Delete assignments
+        $workout->assignments()->delete();
+
+        // Delete workout
+        $workout->delete();
+
+        return response()->json([
+            'message' => 'Workout deleted successfully'
+        ]);
+    }
+
+    /**
      * Assign workout to student(s) (admin only)
      */
     public function assign(Request $request, $id)

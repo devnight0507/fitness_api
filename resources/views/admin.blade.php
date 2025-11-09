@@ -608,10 +608,20 @@
                     switchTab('list');
                 } else {
                     const error = await workoutResponse.json();
-                    showAlert('alert', error.message || 'Failed to save workout', 'error');
+                    console.error('Workout save error:', error);
+
+                    // Show validation errors if available
+                    let errorMessage = error.message || 'Failed to save workout';
+                    if (error.errors) {
+                        const validationErrors = Object.values(error.errors).flat().join(', ');
+                        errorMessage += ': ' + validationErrors;
+                    }
+
+                    showAlert('alert', errorMessage, 'error');
                 }
             } catch (error) {
-                showAlert('alert', 'Connection error', 'error');
+                console.error('Connection error:', error);
+                showAlert('alert', 'Connection error: ' + error.message, 'error');
             }
         });
 
