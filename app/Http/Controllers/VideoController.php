@@ -15,7 +15,24 @@ class VideoController extends Controller
      */
     public function stream(Request $request, $workoutId)
     {
+        // Get user from token (supports both header and query parameter)
         $user = $request->user();
+
+        // If no user from header, try to get token from query parameter
+        if (!$user && $request->has('token')) {
+            $token = $request->query('token');
+            $personalAccessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+
+            if ($personalAccessToken) {
+                $user = $personalAccessToken->tokenable;
+            }
+        }
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
         $workout = Workout::find($workoutId);
 
         if (!$workout) {
