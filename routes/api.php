@@ -7,6 +7,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,9 @@ Route::get('/test', function () {
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/verify-reset-code', [AuthController::class, 'verifyResetCode']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -29,6 +33,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/users/chat', [AuthController::class, 'getChatUsers']);
+
+    // User Profile
+    Route::put('/user/profile', [UserController::class, 'updateProfile']);
+    Route::post('/user/avatar', [UserController::class, 'uploadAvatar']);
+    Route::delete('/user/avatar', [UserController::class, 'deleteAvatar']);
+    Route::post('/user/push-token', [UserController::class, 'updatePushToken']);
+    Route::put('/user/notifications', [UserController::class, 'updateNotificationSettings']);
 
     // Home / Dashboard
     Route::get('/dashboard', [HomeController::class, 'dashboard']);
@@ -40,6 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/workouts/assigned', [WorkoutController::class, 'assigned']);
     Route::get('/workouts/{id}', [WorkoutController::class, 'show']);
     Route::post('/workouts', [WorkoutController::class, 'store']);
+    Route::put('/workouts/{id}', [WorkoutController::class, 'update']);
+    Route::delete('/workouts/{id}', [WorkoutController::class, 'destroy']);
     Route::post('/workouts/{id}/assign', [WorkoutController::class, 'assign']);
 
     // Nutrition Plans
@@ -74,4 +87,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/videos/{workoutId}/log-view', [VideoController::class, 'logView']);
     Route::get('/videos/{workoutId}/stats', [VideoController::class, 'stats']);
     Route::get('/videos/my-history', [VideoController::class, 'myHistory']);
+    Route::post('/videos/upload', [VideoController::class, 'upload']);
 });

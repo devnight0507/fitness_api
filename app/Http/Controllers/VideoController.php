@@ -222,4 +222,60 @@ class VideoController extends Controller
 
         return response()->json($history);
     }
+
+    /**
+     * Upload video for a workout (Admin only)
+     */
+    public function upload(Request $request)
+    {
+        $user = $request->user();
+
+        // Only admins can upload videos
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can upload videos'
+            ], 403);
+        }
+
+        $request->validate([
+            'video' => 'required|file|mimes:mp4,mov,avi|max:102400', // 100MB max
+            'workout_id' => 'required|exists:workouts,id',
+        ]);
+
+        try {
+            $workout = Workout::find($request->workout_id);
+
+            // Check if admin owns this workout
+            if ($workout->admin_id !== $user->id) {
+                return response()->json([
+                    'message' => 'You can only upload videos for your own workouts'
+                ], 403);
+            }
+
+            // Delete old video if exists
+            if ($workout->video_path) {
+                Storage::disk('public')->delete($workout->video_path);
+            }
+
+            // Store video
+            $file = $request->file('video');
+            $filename = 'workout_' . $workout->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('videos/workouts', $filename, 'public');
+
+            // Update workout
+            $workout->video_path = $path;
+            $workout->save();
+
+            return response()->json([
+                'message' => 'Video uploaded successfully',
+                'workout' => $workout,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload video',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

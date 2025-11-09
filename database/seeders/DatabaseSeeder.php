@@ -73,6 +73,8 @@ class DatabaseSeeder extends Seeder
             'duration' => '45 min',
             'level' => 'Intermediate',
             'description' => 'Complete full body workout focusing on major muscle groups with compound movements.',
+            'video_path' => 'videos/workouts/full_body_strength.mp4',
+            'thumbnail_path' => 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48',
             'admin_id' => $admin->id,
             'is_active' => true,
         ]);
@@ -110,6 +112,8 @@ class DatabaseSeeder extends Seeder
             'duration' => '30 min',
             'level' => 'Beginner',
             'description' => 'High intensity interval training you can do at home with no equipment.',
+            'video_path' => 'videos/workouts/hiit_cardio.mp4',
+            'thumbnail_path' => 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438',
             'admin_id' => $admin->id,
             'is_active' => true,
         ]);
@@ -138,6 +142,8 @@ class DatabaseSeeder extends Seeder
             'duration' => '60 min',
             'level' => 'Advanced',
             'description' => 'Focused upper body pushing exercises for chest, shoulders, and triceps.',
+            'video_path' => 'videos/workouts/upper_body_push.mp4',
+            'thumbnail_path' => 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b',
             'admin_id' => $admin->id,
             'is_active' => true,
         ]);

@@ -144,10 +144,18 @@ class CalendarController extends Controller
 
     /**
      * Update a calendar event
+     * Only admins can update events (students have read-only access)
      */
     public function update(Request $request, $id)
     {
         $user = $request->user();
+
+        // Only admins can update events
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can update calendar events'
+            ], 403);
+        }
 
         $event = CalendarEvent::find($id);
 
@@ -157,10 +165,10 @@ class CalendarController extends Controller
             ], 404);
         }
 
-        // Check if user owns this event
-        if ($event->user_id !== $user->id) {
+        // Check if admin created this event
+        if ($event->created_by !== $user->id) {
             return response()->json([
-                'message' => 'You do not have permission to update this event'
+                'message' => 'You can only update events you created'
             ], 403);
         }
 
@@ -181,10 +189,18 @@ class CalendarController extends Controller
 
     /**
      * Delete a calendar event
+     * Only admins can delete events (students have read-only access)
      */
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
+
+        // Only admins can delete events
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can delete calendar events'
+            ], 403);
+        }
 
         $event = CalendarEvent::find($id);
 
@@ -194,10 +210,10 @@ class CalendarController extends Controller
             ], 404);
         }
 
-        // Check if user owns this event
-        if ($event->user_id !== $user->id) {
+        // Check if admin created this event
+        if ($event->created_by !== $user->id) {
             return response()->json([
-                'message' => 'You do not have permission to delete this event'
+                'message' => 'You can only delete events you created'
             ], 403);
         }
 
