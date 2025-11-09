@@ -97,10 +97,40 @@ class CalendarController extends Controller
             'date' => 'required|date',
             'time' => 'required|string|max:20',
             'description' => 'nullable|string',
+            'user_id' => 'nullable|exists:users,id', // Optional: trainers can specify student
         ]);
 
+        // Determine who the event is for
+        $targetUserId = $user->id; // Default: create for self
+
+        // If user_id is provided, check if trainer can create for student
+        if ($request->has('user_id') && $request->user_id != $user->id) {
+            if ($user->role === 'trainer') {
+                // Verify the student belongs to this trainer
+                $student = \App\Models\User::find($request->user_id);
+
+                if (!$student) {
+                    return response()->json([
+                        'message' => 'Student not found'
+                    ], 404);
+                }
+
+                if ($student->trainer_id !== $user->id) {
+                    return response()->json([
+                        'message' => 'You can only create events for your own students'
+                    ], 403);
+                }
+
+                $targetUserId = $request->user_id;
+            } else {
+                return response()->json([
+                    'message' => 'Only trainers can create events for other users'
+                ], 403);
+            }
+        }
+
         $event = CalendarEvent::create([
-            'user_id' => $user->id,
+            'user_id' => $targetUserId,
             'name' => $request->name,
             'type' => $request->type,
             'date' => $request->date,
@@ -201,5 +231,80 @@ class CalendarController extends Controller
         }
 
         return response()->json($event);
+    }
+
+    /**
+     * Create multiple calendar events at once
+     * Useful for creating weekly workout schedules
+     */
+    public function storeBulk(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'events' => 'required|array|min:1|max:50', // Max 50 events at once
+            'events.*.name' => 'required|string|max:255',
+            'events.*.type' => 'required|in:workout,nutrition,rest,assessment,other',
+            'events.*.date' => 'required|date',
+            'events.*.time' => 'required|string|max:20',
+            'events.*.description' => 'nullable|string',
+            'events.*.user_id' => 'nullable|exists:users,id',
+        ]);
+
+        $createdEvents = [];
+        $errors = [];
+
+        foreach ($request->events as $index => $eventData) {
+            // Determine target user
+            $targetUserId = $user->id;
+
+            if (isset($eventData['user_id']) && $eventData['user_id'] != $user->id) {
+                if ($user->role === 'trainer') {
+                    $student = \App\Models\User::find($eventData['user_id']);
+
+                    if (!$student || $student->trainer_id !== $user->id) {
+                        $errors[] = [
+                            'index' => $index,
+                            'message' => 'Invalid student or not your student'
+                        ];
+                        continue;
+                    }
+
+                    $targetUserId = $eventData['user_id'];
+                } else {
+                    $errors[] = [
+                        'index' => $index,
+                        'message' => 'Only trainers can create events for other users'
+                    ];
+                    continue;
+                }
+            }
+
+            try {
+                $event = CalendarEvent::create([
+                    'user_id' => $targetUserId,
+                    'name' => $eventData['name'],
+                    'type' => $eventData['type'],
+                    'date' => $eventData['date'],
+                    'time' => $eventData['time'],
+                    'description' => $eventData['description'] ?? null,
+                    'created_by' => $user->id,
+                ]);
+
+                $createdEvents[] = $event;
+            } catch (\Exception $e) {
+                $errors[] = [
+                    'index' => $index,
+                    'message' => 'Failed to create event: ' . $e->getMessage()
+                ];
+            }
+        }
+
+        return response()->json([
+            'created' => count($createdEvents),
+            'failed' => count($errors),
+            'events' => $createdEvents,
+            'errors' => $errors
+        ], 201);
     }
 }

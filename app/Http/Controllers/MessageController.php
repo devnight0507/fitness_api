@@ -121,7 +121,11 @@ class MessageController extends Controller
             ], 403);
         }
 
-        // Get messages between the two users
+        // Get pagination parameters
+        $perPage = $request->query('per_page', 20); // Default 20 messages per page
+        $perPage = min($perPage, 100); // Max 100 per page
+
+        // Get messages between the two users with pagination
         $messages = Message::with(['sender', 'receiver'])
             ->where(function ($query) use ($user, $otherUserId) {
                 $query->where('sender_id', $user->id)
@@ -131,8 +135,8 @@ class MessageController extends Controller
                 $query->where('sender_id', $otherUserId)
                     ->where('receiver_id', $user->id);
             })
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->orderBy('created_at', 'desc') // Changed to desc for pagination (latest first)
+            ->paginate($perPage);
 
         // Mark messages as read
         Message::where('sender_id', $otherUserId)
@@ -227,5 +231,95 @@ class MessageController extends Controller
         return response()->json([
             'unread_count' => $count
         ]);
+    }
+
+    /**
+     * Check if there are new messages since a given timestamp
+     * Used for polling
+     */
+    public function hasNewMessages(Request $request)
+    {
+        $user = $request->user();
+        $since = $request->query('since');
+
+        if (!$since) {
+            return response()->json([
+                'message' => 'since parameter is required (ISO 8601 timestamp)'
+            ], 400);
+        }
+
+        // Validate timestamp format
+        try {
+            $sinceDate = new \DateTime($since);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Invalid timestamp format. Use ISO 8601 format (e.g., 2025-11-07T12:00:00Z)'
+            ], 400);
+        }
+
+        // Check for new messages received since the timestamp
+        $newMessagesCount = Message::where('receiver_id', $user->id)
+            ->where('created_at', '>', $sinceDate->format('Y-m-d H:i:s'))
+            ->count();
+
+        $hasNew = $newMessagesCount > 0;
+
+        // Get list of users who sent new messages
+        $newMessageSenders = [];
+        if ($hasNew) {
+            $newMessageSenders = Message::where('receiver_id', $user->id)
+                ->where('created_at', '>', $sinceDate->format('Y-m-d H:i:s'))
+                ->select('sender_id')
+                ->distinct()
+                ->pluck('sender_id')
+                ->toArray();
+        }
+
+        return response()->json([
+            'has_new' => $hasNew,
+            'count' => $newMessagesCount,
+            'senders' => $newMessageSenders,
+            'checked_at' => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
+     * Delete a message (only within 5 minutes of sending)
+     */
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $message = Message::find($id);
+
+        if (!$message) {
+            return response()->json([
+                'message' => 'Message not found'
+            ], 404);
+        }
+
+        // Only sender can delete their own message
+        if ($message->sender_id !== $user->id) {
+            return response()->json([
+                'message' => 'You can only delete your own messages'
+            ], 403);
+        }
+
+        // Check if message is within 5-minute deletion window
+        $createdAt = new \DateTime($message->created_at);
+        $now = new \DateTime();
+        $diffInMinutes = ($now->getTimestamp() - $createdAt->getTimestamp()) / 60;
+
+        if ($diffInMinutes > 5) {
+            return response()->json([
+                'message' => 'You can only delete messages within 5 minutes of sending'
+            ], 403);
+        }
+
+        $message->delete();
+
+        return response()->json([
+            'message' => 'Message deleted successfully'
+        ], 200);
     }
 }

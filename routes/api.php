@@ -50,15 +50,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Messages / Chat
     Route::get('/messages/conversations', [MessageController::class, 'conversations']);
+    Route::get('/messages/has-new', [MessageController::class, 'hasNewMessages']);
+    Route::get('/messages/unread-count', [MessageController::class, 'unreadCount']);
     Route::get('/messages', [MessageController::class, 'index']);
     Route::post('/messages', [MessageController::class, 'store']);
     Route::patch('/messages/{id}/read', [MessageController::class, 'markAsRead']);
-    Route::get('/messages/unread-count', [MessageController::class, 'unreadCount']);
+    Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
 
     // Calendar Events
     Route::get('/calendar', [CalendarController::class, 'index']);
     Route::get('/calendar/today', [CalendarController::class, 'today']);
     Route::get('/calendar/grouped', [CalendarController::class, 'grouped']);
+    Route::post('/calendar/bulk', [CalendarController::class, 'storeBulk']);
     Route::get('/calendar/{id}', [CalendarController::class, 'show']);
     Route::post('/calendar', [CalendarController::class, 'store']);
     Route::put('/calendar/{id}', [CalendarController::class, 'update']);
