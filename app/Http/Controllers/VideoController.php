@@ -237,8 +237,21 @@ class VideoController extends Controller
             ], 403);
         }
 
-        $request->validate([
-            'video' => 'required|file|mimes:mp4,mov,avi|max:102400', // 100MB max
+        // Validate the request
+        $validated = $request->validate([
+            'video' => [
+                'required',
+                'file',
+                'max:102400', // 100MB max
+                function ($attribute, $value, $fail) {
+                    $extension = strtolower($value->getClientOriginalExtension());
+                    $allowedExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+
+                    if (!in_array($extension, $allowedExtensions)) {
+                        $fail('The video must be a file of type: mp4, mov, avi, mkv, webm.');
+                    }
+                },
+            ],
             'workout_id' => 'required|exists:workouts,id',
         ]);
 

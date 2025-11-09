@@ -352,8 +352,8 @@
                     <div class="form-group">
                         <label>Video Upload</label>
                         <div class="file-upload" onclick="document.getElementById('videoFile').click()">
-                            <input type="file" id="videoFile" accept="video/mp4,video/quicktime">
-                            <p id="videoFileName">📹 Click to upload video (MP4 format)</p>
+                            <input type="file" id="videoFile" accept="video/mp4,video/quicktime,video/x-msvideo,.mp4,.mov,.avi,.mkv,.webm">
+                            <p id="videoFileName">📹 Click to upload video (MP4, MOV, AVI, MKV, WEBM)</p>
                             <small style="color: #666;">Max size: 100MB</small>
                             <div id="uploadProgress" class="progress hidden">
                                 <div id="uploadProgressBar" class="progress-bar" style="width: 0%"></div>
