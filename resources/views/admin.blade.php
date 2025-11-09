@@ -596,13 +596,20 @@
 
                 if (workoutResponse.ok) {
                     const savedWorkout = await workoutResponse.json();
+                    let successMessage = workoutId ? 'Workout updated successfully!' : 'Workout created successfully!';
 
                     // If video file is selected, upload it
                     if (videoFile) {
-                        await uploadVideo(savedWorkout.id, videoFile);
+                        try {
+                            await uploadVideo(savedWorkout.id, videoFile);
+                            successMessage += ' Video uploaded successfully!';
+                        } catch (videoError) {
+                            console.error('Video upload error:', videoError);
+                            successMessage += ' Warning: Video upload failed - ' + videoError.message;
+                        }
                     }
 
-                    showAlert('alert', workoutId ? 'Workout updated successfully!' : 'Workout created successfully!', 'success');
+                    showAlert('alert', successMessage, 'success');
                     resetForm();
                     loadWorkouts();
                     switchTab('list');
@@ -635,7 +642,7 @@
             const progressFill = document.getElementById('uploadProgressBar');
             progressBar.classList.remove('hidden');
 
-            try {
+            return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
 
                 // Upload progress
@@ -650,16 +657,28 @@
                 xhr.addEventListener('load', () => {
                     progressBar.classList.add('hidden');
                     progressFill.style.width = '0%';
+
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        console.log('Video uploaded successfully');
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        console.error('Video upload failed:', xhr.status, xhr.responseText);
+                        reject(new Error('Video upload failed: ' + xhr.statusText));
+                    }
+                });
+
+                // Upload error
+                xhr.addEventListener('error', () => {
+                    progressBar.classList.add('hidden');
+                    progressFill.style.width = '0%';
+                    console.error('Video upload error');
+                    reject(new Error('Video upload error'));
                 });
 
                 xhr.open('POST', `${API_URL}/videos/upload`, true);
                 xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
                 xhr.send(formData);
-
-            } catch (error) {
-                progressBar.classList.add('hidden');
-                console.error('Video upload failed:', error);
-            }
+            });
         }
 
         // Edit workout
