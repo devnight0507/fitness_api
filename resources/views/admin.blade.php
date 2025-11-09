@@ -481,7 +481,14 @@
         function switchTab(tab) {
             // Update tab buttons
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+
+            // Find and activate the correct tab button
+            const tabs = document.querySelectorAll('.tab');
+            if (tab === 'list') {
+                tabs[0].classList.add('active');
+            } else if (tab === 'create') {
+                tabs[1].classList.add('active');
+            }
 
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -668,9 +675,12 @@
                     document.getElementById('formTitle').textContent = 'Edit Workout';
 
                     switchTab('create');
+                } else {
+                    showAlert('alert', 'Failed to load workout: ' + response.statusText, 'error');
                 }
             } catch (error) {
-                showAlert('alert', 'Failed to load workout', 'error');
+                console.error('Edit workout error:', error);
+                showAlert('alert', 'Failed to load workout: ' + error.message, 'error');
             }
         }
 
