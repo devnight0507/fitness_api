@@ -12,7 +12,7 @@ class WorkoutController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Workout::with(['exercises', 'trainer'])
+        $query = Workout::with(['exercises', 'admin'])
             ->where('is_active', true);
 
         // Filter by category
@@ -44,7 +44,7 @@ class WorkoutController extends Controller
             ], 403);
         }
 
-        $workouts = Workout::with(['exercises', 'trainer'])
+        $workouts = Workout::with(['exercises', 'admin'])
             ->whereHas('assignments', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
@@ -62,7 +62,7 @@ class WorkoutController extends Controller
     {
         $user = $request->user();
 
-        $workout = Workout::with(['exercises', 'trainer'])->find($id);
+        $workout = Workout::with(['exercises', 'admin'])->find($id);
 
         if (!$workout) {
             return response()->json([
@@ -128,7 +128,7 @@ class WorkoutController extends Controller
             'thumbnail_path' => $request->thumbnail_path,
             'video_path' => $request->video_path,
             'video_duration' => $request->video_duration,
-            'trainer_id' => $user->id,
+            'admin_id' => $user->id,
             'is_active' => true,
         ]);
 

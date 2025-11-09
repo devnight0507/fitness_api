@@ -30,26 +30,12 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        $trainer1 = User::create([
-            'name' => 'John Trainer',
-            'email' => 'trainer@fitness.com',
-            'password' => Hash::make('password123'),
-            'role' => 'trainer',
-        ]);
-
-        $trainer2 = User::create([
-            'name' => 'Sarah Coach',
-            'email' => 'sarah@fitness.com',
-            'password' => Hash::make('password123'),
-            'role' => 'trainer',
-        ]);
-
         $student1 = User::create([
             'name' => 'Mike Student',
             'email' => 'mike@fitness.com',
             'password' => Hash::make('password123'),
             'role' => 'student',
-            'trainer_id' => $trainer1->id,
+            'admin_id' => $admin->id,
             'weight' => 75.5,
             'height' => 180.0,
             'age' => 25,
@@ -61,7 +47,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'emma@fitness.com',
             'password' => Hash::make('password123'),
             'role' => 'student',
-            'trainer_id' => $trainer1->id,
+            'admin_id' => $admin->id,
             'weight' => 60.0,
             'height' => 165.0,
             'age' => 28,
@@ -73,7 +59,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'alex@fitness.com',
             'password' => Hash::make('password123'),
             'role' => 'student',
-            'trainer_id' => $trainer2->id,
+            'admin_id' => $admin->id,
             'weight' => 82.0,
             'height' => 175.0,
             'age' => 30,
@@ -87,7 +73,7 @@ class DatabaseSeeder extends Seeder
             'duration' => '45 min',
             'level' => 'Intermediate',
             'description' => 'Complete full body workout focusing on major muscle groups with compound movements.',
-            'trainer_id' => $trainer1->id,
+            'admin_id' => $admin->id,
             'is_active' => true,
         ]);
 
@@ -124,7 +110,7 @@ class DatabaseSeeder extends Seeder
             'duration' => '30 min',
             'level' => 'Beginner',
             'description' => 'High intensity interval training you can do at home with no equipment.',
-            'trainer_id' => $trainer1->id,
+            'admin_id' => $admin->id,
             'is_active' => true,
         ]);
 
@@ -152,7 +138,7 @@ class DatabaseSeeder extends Seeder
             'duration' => '60 min',
             'level' => 'Advanced',
             'description' => 'Focused upper body pushing exercises for chest, shoulders, and triceps.',
-            'trainer_id' => $trainer2->id,
+            'admin_id' => $admin->id,
             'is_active' => true,
         ]);
 
@@ -173,7 +159,7 @@ class DatabaseSeeder extends Seeder
             'protein' => 180,
             'carbs' => 300,
             'fats' => 80,
-            'trainer_id' => $trainer1->id,
+            'admin_id' => $admin->id,
             'is_active' => true,
         ]);
 
@@ -204,7 +190,7 @@ class DatabaseSeeder extends Seeder
             'protein' => 120,
             'carbs' => 180,
             'fats' => 60,
-            'trainer_id' => $trainer1->id,
+            'admin_id' => $admin->id,
             'is_active' => true,
         ]);
 
@@ -223,14 +209,14 @@ class DatabaseSeeder extends Seeder
             'user_id' => $student1->id,
             'assignable_type' => Workout::class,
             'assignable_id' => $workout1->id,
-            'assigned_by' => $trainer1->id,
+            'assigned_by' => $admin->id,
         ]);
 
         UserAssignment::create([
             'user_id' => $student2->id,
             'assignable_type' => Workout::class,
             'assignable_id' => $workout2->id,
-            'assigned_by' => $trainer1->id,
+            'assigned_by' => $admin->id,
         ]);
 
         // Assign Nutrition Plans to Students
@@ -238,19 +224,19 @@ class DatabaseSeeder extends Seeder
             'user_id' => $student1->id,
             'assignable_type' => NutritionPlan::class,
             'assignable_id' => $nutrition1->id,
-            'assigned_by' => $trainer1->id,
+            'assigned_by' => $admin->id,
         ]);
 
         UserAssignment::create([
             'user_id' => $student2->id,
             'assignable_type' => NutritionPlan::class,
             'assignable_id' => $nutrition2->id,
-            'assigned_by' => $trainer1->id,
+            'assigned_by' => $admin->id,
         ]);
 
         // Create Messages
         Message::create([
-            'sender_id' => $trainer1->id,
+            'sender_id' => $admin->id,
             'receiver_id' => $student1->id,
             'message' => 'Hey Mike! How are you finding the new workout plan?',
             'read_at' => now()->subHours(2),
@@ -258,13 +244,13 @@ class DatabaseSeeder extends Seeder
 
         Message::create([
             'sender_id' => $student1->id,
-            'receiver_id' => $trainer1->id,
-            'message' => 'Hi John! It\'s great, but the deadlifts are tough!',
+            'receiver_id' => $admin->id,
+            'message' => 'Hi! It\'s great, but the deadlifts are tough!',
             'read_at' => now()->subHour(),
         ]);
 
         Message::create([
-            'sender_id' => $trainer1->id,
+            'sender_id' => $admin->id,
             'receiver_id' => $student1->id,
             'message' => 'That\'s normal! Make sure to focus on form first. Let me know if you need any adjustments.',
             'read_at' => null,
@@ -277,7 +263,7 @@ class DatabaseSeeder extends Seeder
             'type' => 'workout',
             'date' => Carbon::today()->toDateString(),
             'time' => '6:00 PM',
-            'created_by' => $trainer1->id,
+            'created_by' => $admin->id,
         ]);
 
         CalendarEvent::create([
@@ -286,7 +272,7 @@ class DatabaseSeeder extends Seeder
             'type' => 'workout',
             'date' => Carbon::tomorrow()->toDateString(),
             'time' => '6:00 PM',
-            'created_by' => $trainer1->id,
+            'created_by' => $admin->id,
         ]);
 
         CalendarEvent::create([

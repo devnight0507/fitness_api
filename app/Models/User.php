@@ -28,7 +28,7 @@ class User extends Authenticatable
         'height',
         'age',
         'goal',
-        'trainer_id',
+        'admin_id',
     ];
 
     /**
@@ -57,14 +57,14 @@ class User extends Authenticatable
     }
 
     // Relationships
-    public function trainer()
+    public function admin()
     {
-        return $this->belongsTo(User::class, 'trainer_id');
+        return $this->belongsTo(User::class, 'admin_id');
     }
 
     public function students()
     {
-        return $this->hasMany(User::class, 'trainer_id');
+        return $this->hasMany(User::class, 'admin_id');
     }
 
     public function sentMessages()

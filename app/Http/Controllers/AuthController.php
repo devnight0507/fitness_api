@@ -48,8 +48,8 @@ class AuthController extends Controller
             ]);
         }
 
-        // Load trainer relationship
-        $user->load('trainer');
+        // Load admin relationship
+        $user->load('admin');
 
         $token = $user->createToken('mobile-app')->plainTextToken;
 
@@ -70,7 +70,7 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        return response()->json($request->user()->load('trainer'));
+        return response()->json($request->user()->load('admin'));
     }
 
     /**
@@ -81,13 +81,13 @@ class AuthController extends Controller
         $user = $request->user();
 
         if ($user->role === 'student') {
-            // Students can only chat with their assigned admin/trainer
-            if (!$user->trainer_id) {
+            // Students can only chat with their assigned admin
+            if (!$user->admin_id) {
                 return response()->json([]);
             }
 
             $admin = User::select('id', 'name', 'email', 'role', 'avatar_path')
-                ->find($user->trainer_id);
+                ->find($user->admin_id);
 
             return response()->json($admin ? [$admin] : []);
         }

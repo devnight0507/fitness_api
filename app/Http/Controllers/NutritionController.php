@@ -12,7 +12,7 @@ class NutritionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = NutritionPlan::with(['meals', 'trainer'])
+        $query = NutritionPlan::with(['meals', 'admin'])
             ->where('is_active', true);
 
         $plans = $query->orderBy('created_at', 'desc')->get();
@@ -34,7 +34,7 @@ class NutritionController extends Controller
             ], 403);
         }
 
-        $plans = NutritionPlan::with(['meals', 'trainer'])
+        $plans = NutritionPlan::with(['meals', 'admin'])
             ->whereHas('assignments', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
@@ -52,7 +52,7 @@ class NutritionController extends Controller
     {
         $user = $request->user();
 
-        $plan = NutritionPlan::with(['meals', 'trainer'])->find($id);
+        $plan = NutritionPlan::with(['meals', 'admin'])->find($id);
 
         if (!$plan) {
             return response()->json([
@@ -117,7 +117,7 @@ class NutritionController extends Controller
             'carbs' => $request->carbs,
             'fats' => $request->fats,
             'thumbnail_path' => $request->thumbnail_path,
-            'trainer_id' => $user->id,
+            'admin_id' => $user->id,
             'is_active' => true,
         ]);
 

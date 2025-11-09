@@ -14,7 +14,7 @@ class NutritionPlan extends Model
         'carbs',
         'fats',
         'thumbnail_path',
-        'trainer_id',
+        'admin_id',
         'is_active',
     ];
 
@@ -29,9 +29,9 @@ class NutritionPlan extends Model
     protected $appends = ['thumbnail_url', 'meal_count'];
 
     // Relationships
-    public function trainer()
+    public function admin()
     {
-        return $this->belongsTo(User::class, 'trainer_id');
+        return $this->belongsTo(User::class, 'admin_id');
     }
 
     public function meals()

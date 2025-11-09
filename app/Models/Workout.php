@@ -15,7 +15,7 @@ class Workout extends Model
         'thumbnail_path',
         'video_path',
         'video_duration',
-        'trainer_id',
+        'admin_id',
         'is_active',
     ];
 
@@ -27,9 +27,9 @@ class Workout extends Model
     protected $appends = ['thumbnail_url', 'video_url', 'exercise_count'];
 
     // Relationships
-    public function trainer()
+    public function admin()
     {
-        return $this->belongsTo(User::class, 'trainer_id');
+        return $this->belongsTo(User::class, 'admin_id');
     }
 
     public function exercises()
