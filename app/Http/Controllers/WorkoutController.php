@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class WorkoutController extends Controller
 {
     /**
-     * Get all active workouts (admin/trainer view)
+     * Get all active workouts (admin view)
      */
     public function index(Request $request)
     {
@@ -23,11 +23,6 @@ class WorkoutController extends Controller
         // Filter by level
         if ($request->has('level')) {
             $query->where('level', $request->level);
-        }
-
-        // Filter by trainer (for trainers to see their own workouts)
-        if ($request->user()->role === 'trainer') {
-            $query->where('trainer_id', $request->user()->id);
         }
 
         $workouts = $query->orderBy('created_at', 'desc')->get();
@@ -89,26 +84,21 @@ class WorkoutController extends Controller
             }
         }
 
-        // Trainers can only see their own workouts
-        if ($user->role === 'trainer' && $workout->trainer_id !== $user->id) {
-            return response()->json([
-                'message' => 'You do not have access to this workout'
-            ], 403);
-        }
+        // Admins can see all workouts
 
         return response()->json($workout);
     }
 
     /**
-     * Create a new workout (trainer/admin only)
+     * Create a new workout (admin only)
      */
     public function store(Request $request)
     {
         $user = $request->user();
 
-        if (!in_array($user->role, ['trainer', 'admin'])) {
+        if ($user->role !== 'admin') {
             return response()->json([
-                'message' => 'Only trainers and admins can create workouts'
+                'message' => 'Only admins can create workouts'
             ], 403);
         }
 
@@ -162,15 +152,15 @@ class WorkoutController extends Controller
     }
 
     /**
-     * Assign workout to student(s) (trainer/admin only)
+     * Assign workout to student(s) (admin only)
      */
     public function assign(Request $request, $id)
     {
         $user = $request->user();
 
-        if (!in_array($user->role, ['trainer', 'admin'])) {
+        if ($user->role !== 'admin') {
             return response()->json([
-                'message' => 'Only trainers and admins can assign workouts'
+                'message' => 'Only admins can assign workouts'
             ], 403);
         }
 
@@ -180,13 +170,6 @@ class WorkoutController extends Controller
             return response()->json([
                 'message' => 'Workout not found'
             ], 404);
-        }
-
-        // Trainers can only assign their own workouts
-        if ($user->role === 'trainer' && $workout->trainer_id !== $user->id) {
-            return response()->json([
-                'message' => 'You can only assign your own workouts'
-            ], 403);
         }
 
         $request->validate([

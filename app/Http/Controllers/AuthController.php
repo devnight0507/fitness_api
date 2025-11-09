@@ -15,7 +15,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'nullable|in:student,trainer',
+            'role' => 'nullable|in:student,admin',
         ]);
 
         $user = User::create([
@@ -74,37 +74,26 @@ class AuthController extends Controller
     }
 
     /**
-     * Get list of users for chat (trainers get their students, admins get all users)
+     * Get list of users for chat (students chat with admin, admins chat with all students)
      */
     public function getChatUsers(Request $request)
     {
         $user = $request->user();
 
         if ($user->role === 'student') {
-            // Students can only chat with their trainer
+            // Students can only chat with their assigned admin/trainer
             if (!$user->trainer_id) {
                 return response()->json([]);
             }
 
-            $trainer = User::select('id', 'name', 'email', 'role', 'avatar_path')
+            $admin = User::select('id', 'name', 'email', 'role', 'avatar_path')
                 ->find($user->trainer_id);
 
-            return response()->json($trainer ? [$trainer] : []);
-        }
-
-        if ($user->role === 'trainer') {
-            // Trainers can chat with their students
-            $students = User::select('id', 'name', 'email', 'role', 'avatar_path')
-                ->where('trainer_id', $user->id)
-                ->where('role', 'student')
-                ->orderBy('name')
-                ->get();
-
-            return response()->json($students);
+            return response()->json($admin ? [$admin] : []);
         }
 
         if ($user->role === 'admin') {
-            // Admins can chat with everyone
+            // Admins can chat with all students
             $users = User::select('id', 'name', 'email', 'role', 'avatar_path')
                 ->where('id', '!=', $user->id) // Exclude self
                 ->orderBy('role')

@@ -8,17 +8,12 @@ use Illuminate\Http\Request;
 class NutritionController extends Controller
 {
     /**
-     * Get all active nutrition plans (admin/trainer view)
+     * Get all active nutrition plans (admin view)
      */
     public function index(Request $request)
     {
         $query = NutritionPlan::with(['meals', 'trainer'])
             ->where('is_active', true);
-
-        // Filter by trainer (for trainers to see their own plans)
-        if ($request->user()->role === 'trainer') {
-            $query->where('trainer_id', $request->user()->id);
-        }
 
         $plans = $query->orderBy('created_at', 'desc')->get();
 
@@ -79,26 +74,21 @@ class NutritionController extends Controller
             }
         }
 
-        // Trainers can only see their own plans
-        if ($user->role === 'trainer' && $plan->trainer_id !== $user->id) {
-            return response()->json([
-                'message' => 'You do not have access to this nutrition plan'
-            ], 403);
-        }
+        // Admins can see all plans
 
         return response()->json($plan);
     }
 
     /**
-     * Create a new nutrition plan (trainer/admin only)
+     * Create a new nutrition plan (admin only)
      */
     public function store(Request $request)
     {
         $user = $request->user();
 
-        if (!in_array($user->role, ['trainer', 'admin'])) {
+        if ($user->role !== 'admin') {
             return response()->json([
-                'message' => 'Only trainers and admins can create nutrition plans'
+                'message' => 'Only admins can create nutrition plans'
             ], 403);
         }
 
@@ -152,15 +142,15 @@ class NutritionController extends Controller
     }
 
     /**
-     * Assign nutrition plan to student(s) (trainer/admin only)
+     * Assign nutrition plan to student(s) (admin only)
      */
     public function assign(Request $request, $id)
     {
         $user = $request->user();
 
-        if (!in_array($user->role, ['trainer', 'admin'])) {
+        if ($user->role !== 'admin') {
             return response()->json([
-                'message' => 'Only trainers and admins can assign nutrition plans'
+                'message' => 'Only admins can assign nutrition plans'
             ], 403);
         }
 
@@ -170,13 +160,6 @@ class NutritionController extends Controller
             return response()->json([
                 'message' => 'Nutrition plan not found'
             ], 404);
-        }
-
-        // Trainers can only assign their own plans
-        if ($user->role === 'trainer' && $plan->trainer_id !== $user->id) {
-            return response()->json([
-                'message' => 'You can only assign your own nutrition plans'
-            ], 403);
         }
 
         $request->validate([
