@@ -44,8 +44,8 @@ class VideoController extends Controller
             }
         }
 
-        // Trainers can only see their own workout videos
-        if ($user->role === 'trainer' && $workout->trainer_id !== $user->id) {
+        // Admins can only see their own workout videos
+        if ($user->role === 'admin' && $workout->admin_id !== $user->id) {
             return response()->json([
                 'message' => 'You do not have access to this video'
             ], 403);
@@ -98,7 +98,7 @@ class VideoController extends Controller
             }
         }
 
-        if ($user->role === 'trainer' && $workout->trainer_id !== $user->id) {
+        if ($user->role === 'admin' && $workout->admin_id !== $user->id) {
             return response()->json([
                 'message' => 'You do not have access to this thumbnail'
             ], 403);
@@ -181,8 +181,8 @@ class VideoController extends Controller
             ], 404);
         }
 
-        // Only trainers and admins can see stats for their workouts
-        if ($user->role === 'trainer' && $workout->trainer_id !== $user->id) {
+        // Only admins can see stats for their workouts
+        if ($user->role === 'admin' && $workout->admin_id !== $user->id) {
             return response()->json([
                 'message' => 'You do not have permission to view these statistics'
             ], 403);

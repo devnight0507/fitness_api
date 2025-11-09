@@ -48,6 +48,13 @@ class AuthController extends Controller
             ]);
         }
 
+        // Only allow admin and student roles to login
+        if (!in_array($user->role, ['admin', 'student'])) {
+            throw ValidationException::withMessages([
+                'email' => ['This account type is no longer supported. Please contact support.'],
+            ]);
+        }
+
         // Load admin relationship
         $user->load('admin');
 

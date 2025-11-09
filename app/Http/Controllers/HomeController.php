@@ -20,14 +20,14 @@ class HomeController extends Controller
         $user = $request->user();
 
         $data = [
-            'user' => $user->load('trainer'),
+            'user' => $user->load('admin'),
             'quote' => $this->getRandomQuote(),
         ];
 
         // Student dashboard
         if ($user->role === 'student') {
             // Get assigned workouts
-            $workouts = Workout::with(['exercises', 'trainer'])
+            $workouts = Workout::with(['exercises', 'admin'])
                 ->whereHas('assignments', function ($query) use ($user) {
                     $query->where('user_id', $user->id);
                 })
@@ -37,7 +37,7 @@ class HomeController extends Controller
                 ->get();
 
             // Get assigned nutrition plans
-            $nutritionPlans = NutritionPlan::with(['meals', 'trainer'])
+            $nutritionPlans = NutritionPlan::with(['meals', 'admin'])
                 ->whereHas('assignments', function ($query) use ($user) {
                     $query->where('user_id', $user->id);
                 })
@@ -64,16 +64,16 @@ class HomeController extends Controller
             $data['unread_messages_count'] = $unreadMessagesCount;
         }
 
-        // Trainer dashboard
-        if ($user->role === 'trainer') {
+        // Admin dashboard
+        if ($user->role === 'admin') {
             // Get students count
-            $studentsCount = \App\Models\User::where('trainer_id', $user->id)->count();
+            $studentsCount = \App\Models\User::where('admin_id', $user->id)->count();
 
             // Get own workouts count
-            $workoutsCount = Workout::where('trainer_id', $user->id)->count();
+            $workoutsCount = Workout::where('admin_id', $user->id)->count();
 
             // Get own nutrition plans count
-            $nutritionPlansCount = NutritionPlan::where('trainer_id', $user->id)->count();
+            $nutritionPlansCount = NutritionPlan::where('admin_id', $user->id)->count();
 
             // Get unread messages count
             $unreadMessagesCount = Message::where('receiver_id', $user->id)
@@ -81,7 +81,7 @@ class HomeController extends Controller
                 ->count();
 
             // Get recent students (last 5)
-            $recentStudents = \App\Models\User::where('trainer_id', $user->id)
+            $recentStudents = \App\Models\User::where('admin_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();

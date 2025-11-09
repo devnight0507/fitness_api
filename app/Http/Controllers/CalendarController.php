@@ -97,16 +97,16 @@ class CalendarController extends Controller
             'date' => 'required|date',
             'time' => 'required|string|max:20',
             'description' => 'nullable|string',
-            'user_id' => 'nullable|exists:users,id', // Optional: trainers can specify student
+            'user_id' => 'nullable|exists:users,id', // Optional: admins can specify student
         ]);
 
         // Determine who the event is for
         $targetUserId = $user->id; // Default: create for self
 
-        // If user_id is provided, check if trainer can create for student
+        // If user_id is provided, check if admin can create for student
         if ($request->has('user_id') && $request->user_id != $user->id) {
-            if ($user->role === 'trainer') {
-                // Verify the student belongs to this trainer
+            if ($user->role === 'admin') {
+                // Verify the student belongs to this admin
                 $student = \App\Models\User::find($request->user_id);
 
                 if (!$student) {
@@ -115,7 +115,7 @@ class CalendarController extends Controller
                     ], 404);
                 }
 
-                if ($student->trainer_id !== $user->id) {
+                if ($student->admin_id !== $user->id) {
                     return response()->json([
                         'message' => 'You can only create events for your own students'
                     ], 403);
@@ -124,7 +124,7 @@ class CalendarController extends Controller
                 $targetUserId = $request->user_id;
             } else {
                 return response()->json([
-                    'message' => 'Only trainers can create events for other users'
+                    'message' => 'Only admins can create events for other users'
                 ], 403);
             }
         }
@@ -259,10 +259,10 @@ class CalendarController extends Controller
             $targetUserId = $user->id;
 
             if (isset($eventData['user_id']) && $eventData['user_id'] != $user->id) {
-                if ($user->role === 'trainer') {
+                if ($user->role === 'admin') {
                     $student = \App\Models\User::find($eventData['user_id']);
 
-                    if (!$student || $student->trainer_id !== $user->id) {
+                    if (!$student || $student->admin_id !== $user->id) {
                         $errors[] = [
                             'index' => $index,
                             'message' => 'Invalid student or not your student'
@@ -274,7 +274,7 @@ class CalendarController extends Controller
                 } else {
                     $errors[] = [
                         'index' => $index,
-                        'message' => 'Only trainers can create events for other users'
+                        'message' => 'Only admins can create events for other users'
                     ];
                     continue;
                 }

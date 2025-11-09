@@ -17,35 +17,35 @@ class MessageController extends Controller
     {
         $user = $request->user();
 
-        // For students, they can only chat with their trainer
+        // For students, they can only chat with their admin
         if ($user->role === 'student') {
-            if (!$user->trainer_id) {
+            if (!$user->admin_id) {
                 return response()->json([
                     'conversations' => []
                 ]);
             }
 
-            $trainer = User::find($user->trainer_id);
-            if (!$trainer) {
+            $admin = User::find($user->admin_id);
+            if (!$admin) {
                 return response()->json([
                     'conversations' => []
                 ]);
             }
 
-            // Get last message between student and trainer
-            $lastMessage = Message::where(function ($query) use ($user, $trainer) {
+            // Get last message between student and admin
+            $lastMessage = Message::where(function ($query) use ($user, $admin) {
                 $query->where('sender_id', $user->id)
-                    ->where('receiver_id', $trainer->id);
-            })->orWhere(function ($query) use ($user, $trainer) {
-                $query->where('sender_id', $trainer->id)
+                    ->where('receiver_id', $admin->id);
+            })->orWhere(function ($query) use ($user, $admin) {
+                $query->where('sender_id', $admin->id)
                     ->where('receiver_id', $user->id);
             })->orderBy('created_at', 'desc')->first();
 
             return response()->json([
                 'conversations' => [[
-                    'user' => $trainer,
+                    'user' => $admin,
                     'last_message' => $lastMessage,
-                    'unread_count' => Message::where('sender_id', $trainer->id)
+                    'unread_count' => Message::where('sender_id', $admin->id)
                         ->where('receiver_id', $user->id)
                         ->whereNull('read_at')
                         ->count()
@@ -53,9 +53,9 @@ class MessageController extends Controller
             ]);
         }
 
-        // For trainers, get all their students with last messages
-        if ($user->role === 'trainer') {
-            $students = User::where('trainer_id', $user->id)->get();
+        // For admins, get all their students with last messages
+        if ($user->role === 'admin') {
+            $students = User::where('admin_id', $user->id)->get();
 
             $conversations = $students->map(function ($student) use ($user) {
                 $lastMessage = Message::where(function ($query) use ($user, $student) {
@@ -108,14 +108,14 @@ class MessageController extends Controller
             ], 404);
         }
 
-        // Check if users can chat (student with trainer only)
-        if ($user->role === 'student' && $user->trainer_id != $otherUserId) {
+        // Check if users can chat (student with admin only)
+        if ($user->role === 'student' && $user->admin_id != $otherUserId) {
             return response()->json([
-                'message' => 'You can only chat with your trainer'
+                'message' => 'You can only chat with your admin'
             ], 403);
         }
 
-        if ($user->role === 'trainer' && $otherUser->trainer_id != $user->id) {
+        if ($user->role === 'admin' && $otherUser->admin_id != $user->id) {
             return response()->json([
                 'message' => 'You can only chat with your students'
             ], 403);
@@ -162,14 +162,14 @@ class MessageController extends Controller
         $receiverId = $request->receiver_id;
         $receiver = User::find($receiverId);
 
-        // Check if users can chat (student with trainer only)
-        if ($user->role === 'student' && $user->trainer_id != $receiverId) {
+        // Check if users can chat (student with admin only)
+        if ($user->role === 'student' && $user->admin_id != $receiverId) {
             return response()->json([
-                'message' => 'You can only chat with your trainer'
+                'message' => 'You can only chat with your admin'
             ], 403);
         }
 
-        if ($user->role === 'trainer' && $receiver->trainer_id != $user->id) {
+        if ($user->role === 'admin' && $receiver->admin_id != $user->id) {
             return response()->json([
                 'message' => 'You can only chat with your students'
             ], 403);

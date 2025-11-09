@@ -20,11 +20,11 @@ return new class extends Migration
             $table->integer('carbs');
             $table->integer('fats');
             $table->string('thumbnail_path')->nullable();
-            $table->foreignId('trainer_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->index('trainer_id');
+            $table->index('admin_id');
         });
     }
 
