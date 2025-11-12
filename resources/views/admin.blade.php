@@ -275,11 +275,11 @@
         <form id="loginForm">
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" id="loginEmail" value="admin@fitness.com" required>
+                <input type="email" id="loginEmail" required>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="loginPassword" value="password123" required>
+                <input type="password" id="loginPassword" required>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
         </form>
