@@ -14,6 +14,7 @@ class Workout extends Model
         'description',
         'thumbnail_path',
         'video_path',
+        'youtube_url',
         'video_duration',
         'admin_id',
         'is_active',

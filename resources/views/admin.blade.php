@@ -350,7 +350,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Video Upload</label>
+                        <label>Video Upload (Local Video)</label>
                         <div class="file-upload" onclick="document.getElementById('videoFile').click()">
                             <input type="file" id="videoFile" accept="video/mp4,video/quicktime,video/x-msvideo,.mp4,.mov,.avi,.mkv,.webm">
                             <p id="videoFileName">📹 Click to upload video (MP4, MOV, AVI, MKV, WEBM)</p>
@@ -359,6 +359,12 @@
                                 <div id="uploadProgressBar" class="progress-bar" style="width: 0%"></div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>OR YouTube Video URL</label>
+                        <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/...">
+                        <small style="color: #666; display: block; margin-top: 5px;">Use either local video upload OR YouTube URL (not both)</small>
                     </div>
 
                     <div class="form-group">
@@ -540,7 +546,7 @@
                             <span>📁 ${workout.category}</span>
                         </div>
                         <p style="color: #666; font-size: 14px; margin-bottom: 15px;">${workout.description || 'No description'}</p>
-                        ${workout.video_path ? '<p style="color: #10b981; font-size: 14px;">✅ Video uploaded</p>' : '<p style="color: #ef4444; font-size: 14px;">❌ No video</p>'}
+                        ${workout.video_path ? '<p style="color: #10b981; font-size: 14px;">✅ Local video uploaded</p>' : workout.youtube_url ? '<p style="color: #10b981; font-size: 14px;">✅ YouTube video linked</p>' : '<p style="color: #ef4444; font-size: 14px;">❌ No video</p>'}
                         <div class="actions">
                             <button class="btn btn-primary" onclick="editWorkout(${workout.id})">✏️ Edit</button>
                             <button class="btn btn-danger" onclick="deleteWorkout(${workout.id})">🗑️ Delete</button>
@@ -565,6 +571,7 @@
                 level: document.getElementById('level').value,
                 description: document.getElementById('description').value,
                 thumbnail_path: document.getElementById('thumbnail').value,
+                youtube_url: document.getElementById('youtubeUrl').value,
             };
 
             try {
@@ -701,6 +708,7 @@
                     document.getElementById('level').value = workout.level;
                     document.getElementById('description').value = workout.description || '';
                     document.getElementById('thumbnail').value = workout.thumbnail_path || '';
+                    document.getElementById('youtubeUrl').value = workout.youtube_url || '';
                     document.getElementById('formTitle').textContent = 'Edit Workout';
 
                     switchTab('create');

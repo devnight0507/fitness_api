@@ -110,6 +110,7 @@ class WorkoutController extends Controller
             'description' => 'nullable|string',
             'thumbnail_path' => 'nullable|string',
             'video_path' => 'nullable|string',
+            'youtube_url' => 'nullable|string|url',
             'video_duration' => 'nullable|integer',
             'exercises' => 'nullable|array',
             'exercises.*.name' => 'required|string',
@@ -127,6 +128,7 @@ class WorkoutController extends Controller
             'description' => $request->description,
             'thumbnail_path' => $request->thumbnail_path,
             'video_path' => $request->video_path,
+            'youtube_url' => $request->youtube_url,
             'video_duration' => $request->video_duration,
             'admin_id' => $user->id,
             'is_active' => true,
@@ -187,6 +189,7 @@ class WorkoutController extends Controller
             'description' => 'nullable|string',
             'thumbnail_path' => 'nullable|string',
             'video_path' => 'nullable|string',
+            'youtube_url' => 'nullable|string|url',
             'video_duration' => 'nullable|integer',
             'exercises' => 'nullable|array',
             'exercises.*.name' => 'required|string',
@@ -204,6 +207,7 @@ class WorkoutController extends Controller
             'description',
             'thumbnail_path',
             'video_path',
+            'youtube_url',
             'video_duration',
         ]));
 
