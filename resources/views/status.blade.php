@@ -178,6 +178,7 @@
                 <li>Milestone 2: Admin panel for content management</li>
                 <li>Milestone 3: Full mobile app backend integration</li>
                 <li>Milestone 3: Custom video player with controls</li>
+                <li>Milestone 3: YouTube video integration</li>
                 <li>Milestone 3: Calendar and progress tracking</li>
                 <li>Milestone 3: Profile management and avatar uploads</li>
             </ul>
