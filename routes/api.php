@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/chat', [AuthController::class, 'getChatUsers']);
 
     // User Profile
+    Route::get('/users', [UserController::class, 'index']); // Get users list (admin only)
     Route::put('/user/profile', [UserController::class, 'updateProfile']);
     Route::post('/user/avatar', [UserController::class, 'uploadAvatar']);
     Route::delete('/user/avatar', [UserController::class, 'deleteAvatar']);
@@ -56,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/workouts', [WorkoutController::class, 'store']);
     Route::put('/workouts/{id}', [WorkoutController::class, 'update']);
     Route::delete('/workouts/{id}', [WorkoutController::class, 'destroy']);
+    Route::get('/workouts/{id}/assignments', [WorkoutController::class, 'getAssignments']);
     Route::post('/workouts/{id}/assign', [WorkoutController::class, 'assign']);
 
     // Nutrition Plans

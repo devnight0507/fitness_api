@@ -147,4 +147,33 @@ class UserController extends Controller
             'user' => $user,
         ]);
     }
+
+    /**
+     * Get list of users (admin only)
+     * Can filter by role: ?role=student or ?role=admin
+     */
+    public function index(Request $request)
+    {
+        $currentUser = $request->user();
+
+        // Only admins can view user lists
+        if ($currentUser->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can view user lists'
+            ], 403);
+        }
+
+        $query = \App\Models\User::query();
+
+        // Filter by role if provided
+        if ($request->has('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->select('id', 'name', 'email', 'role', 'avatar_path', 'created_at')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json($users);
+    }
 }

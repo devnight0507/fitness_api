@@ -326,4 +326,32 @@ class WorkoutController extends Controller
             'assignments' => $assigned,
         ]);
     }
+
+    /**
+     * Get current assignments for a workout (admin only)
+     */
+    public function getAssignments(Request $request, $id)
+    {
+        $user = $request->user();
+
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can view assignments'
+            ], 403);
+        }
+
+        $workout = Workout::find($id);
+
+        if (!$workout) {
+            return response()->json([
+                'message' => 'Workout not found'
+            ], 404);
+        }
+
+        $assignments = $workout->assignments()
+            ->with('user:id,name,email')
+            ->get();
+
+        return response()->json($assignments);
+    }
 }

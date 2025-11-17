@@ -10,6 +10,7 @@ const props = defineProps({
 // State
 const activeTab = ref('list');
 const workoutsList = ref([]);
+const studentsList = ref([]);
 const form = ref({
     id: null,
     title: '',
@@ -20,12 +21,30 @@ const form = ref({
     thumbnail_path: '',
     youtube_url: '',
     video_file: null,
+    exercises: [], // Array of exercises for this workout
 });
 const videoFileName = ref('Click to upload video (MP4, MOV, AVI, MKV, WEBM)');
 const uploadProgress = ref(0);
 const isUploading = ref(false);
 const alert = ref({ show: false, message: '', type: '' });
 const isLoading = ref(false);
+
+// Exercise form state
+const exerciseForm = ref({
+    name: '',
+    sets: 3,
+    reps: '10',
+    rest: 60,
+});
+
+// Assignment modal state
+const assignmentModal = ref({
+    show: false,
+    workoutId: null,
+    workoutTitle: '',
+    selectedStudents: [],
+    initiallyAssigned: [], // Track who was already assigned
+});
 
 // Check authentication and load workouts on mount
 onMounted(() => {
@@ -36,8 +55,9 @@ onMounted(() => {
         return;
     }
 
-    // Load workouts from API
+    // Load workouts and students from API
     loadWorkouts();
+    loadStudents();
 });
 
 // Methods
@@ -70,6 +90,23 @@ const loadWorkouts = async () => {
     }
 };
 
+const loadStudents = async () => {
+    try {
+        const response = await fetch('/api/users?role=student', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                'Accept': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            studentsList.value = await response.json();
+        }
+    } catch (error) {
+        console.error('Failed to load students:', error);
+    }
+};
+
 const handleVideoChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -90,6 +127,7 @@ const submitWorkout = async () => {
         description: form.value.description,
         thumbnail_path: form.value.thumbnail_path,
         youtube_url: form.value.youtube_url,
+        exercises: form.value.exercises,
     };
 
     try {
@@ -185,6 +223,7 @@ const editWorkout = async (id) => {
                 thumbnail_path: workout.thumbnail_path || '',
                 youtube_url: workout.youtube_url || '',
                 video_file: null,
+                exercises: workout.exercises || [],
             };
             switchTab('create');
         }
@@ -216,6 +255,139 @@ const deleteWorkout = async (id) => {
     }
 };
 
+// Exercise management functions
+const addExercise = () => {
+    if (!exerciseForm.value.name.trim()) {
+        showAlert('Please enter exercise name', 'error');
+        return;
+    }
+
+    form.value.exercises.push({
+        name: exerciseForm.value.name,
+        sets: exerciseForm.value.sets,
+        reps: exerciseForm.value.reps,
+        rest: exerciseForm.value.rest,
+        order_index: form.value.exercises.length,
+    });
+
+    // Reset exercise form
+    exerciseForm.value = {
+        name: '',
+        sets: 3,
+        reps: '10',
+        rest: 60,
+    };
+};
+
+const removeExercise = (index) => {
+    form.value.exercises.splice(index, 1);
+    // Update order_index for remaining exercises
+    form.value.exercises.forEach((ex, idx) => {
+        ex.order_index = idx;
+    });
+};
+
+const moveExerciseUp = (index) => {
+    if (index === 0) return;
+    const temp = form.value.exercises[index];
+    form.value.exercises[index] = form.value.exercises[index - 1];
+    form.value.exercises[index - 1] = temp;
+    // Update order_index
+    form.value.exercises.forEach((ex, idx) => {
+        ex.order_index = idx;
+    });
+};
+
+const moveExerciseDown = (index) => {
+    if (index === form.value.exercises.length - 1) return;
+    const temp = form.value.exercises[index];
+    form.value.exercises[index] = form.value.exercises[index + 1];
+    form.value.exercises[index + 1] = temp;
+    // Update order_index
+    form.value.exercises.forEach((ex, idx) => {
+        ex.order_index = idx;
+    });
+};
+
+// Student assignment functions
+const openAssignmentModal = async (workout) => {
+    assignmentModal.value = {
+        show: true,
+        workoutId: workout.id,
+        workoutTitle: workout.title,
+        selectedStudents: [],
+        initiallyAssigned: [],
+    };
+
+    // Fetch current assignments for this workout
+    try {
+        const response = await fetch(`/api/workouts/${workout.id}/assignments`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                'Accept': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            const assignments = await response.json();
+            // Pre-select students who already have this workout assigned
+            const assignedStudentIds = assignments.map(a => a.user_id);
+            assignmentModal.value.selectedStudents = [...assignedStudentIds];
+            assignmentModal.value.initiallyAssigned = [...assignedStudentIds];
+        }
+    } catch (error) {
+        console.error('Failed to load assignments:', error);
+    }
+};
+
+const closeAssignmentModal = () => {
+    assignmentModal.value = {
+        show: false,
+        workoutId: null,
+        workoutTitle: '',
+        selectedStudents: [],
+    };
+};
+
+const toggleStudentSelection = (studentId) => {
+    const index = assignmentModal.value.selectedStudents.indexOf(studentId);
+    if (index > -1) {
+        assignmentModal.value.selectedStudents.splice(index, 1);
+    } else {
+        assignmentModal.value.selectedStudents.push(studentId);
+    }
+};
+
+const assignWorkoutToStudents = async () => {
+    if (assignmentModal.value.selectedStudents.length === 0) {
+        showAlert('Please select at least one student', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/workouts/${assignmentModal.value.workoutId}/assign`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                user_ids: assignmentModal.value.selectedStudents,
+            }),
+        });
+
+        if (response.ok) {
+            showAlert('Workout assigned successfully!', 'success');
+            closeAssignmentModal();
+        } else {
+            showAlert('Failed to assign workout', 'error');
+        }
+    } catch (error) {
+        showAlert('Connection error', 'error');
+    }
+};
+
 const resetForm = () => {
     form.value = {
         id: null,
@@ -227,6 +399,7 @@ const resetForm = () => {
         thumbnail_path: '',
         youtube_url: '',
         video_file: null,
+        exercises: [],
     };
     videoFileName.value = 'Click to upload video (MP4, MOV, AVI, MKV, WEBM)';
 };
@@ -324,10 +497,13 @@ const formTitle = computed(() => {
                                 <span>📁 {{ workout.category }}</span>
                             </div>
                             <p class="text-gray-600 text-sm mb-4">{{ workout.description || 'No description' }}</p>
-                            <p class="text-sm mb-4" :class="workout.video_path || workout.youtube_url ? 'text-green-600' : 'text-red-600'">
+                            <p class="text-sm mb-2" :class="workout.video_path || workout.youtube_url ? 'text-green-600' : 'text-red-600'">
                                 {{ workout.video_path ? '✅ Local video uploaded' : workout.youtube_url ? '✅ YouTube video linked' : '❌ No video' }}
                             </p>
-                            <div class="flex gap-2">
+                            <p class="text-sm mb-4 text-blue-600">
+                                💪 {{ workout.exercise_count || 0 }} exercises
+                            </p>
+                            <div class="flex gap-2 mb-2">
                                 <button
                                     @click="editWorkout(workout.id)"
                                     class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
@@ -341,6 +517,12 @@ const formTitle = computed(() => {
                                     🗑️ Delete
                                 </button>
                             </div>
+                            <button
+                                @click="openAssignmentModal(workout)"
+                                class="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition"
+                            >
+                                👥 Assign to Students
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -460,6 +642,122 @@ const formTitle = computed(() => {
                         >
                     </div>
 
+                    <!-- Exercise Builder Section -->
+                    <div class="border-t-2 border-gray-200 pt-6">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">💪 Workout Exercises</h3>
+                        <p class="text-sm text-gray-600 mb-4">Build your personalized workout by adding exercises with sets, reps, and rest times.</p>
+
+                        <!-- Add Exercise Form -->
+                        <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-4">Add New Exercise</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Exercise Name *</label>
+                                    <input
+                                        v-model="exerciseForm.name"
+                                        type="text"
+                                        placeholder="e.g., Barbell Squat"
+                                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Sets *</label>
+                                    <input
+                                        v-model.number="exerciseForm.sets"
+                                        type="number"
+                                        min="1"
+                                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Reps *</label>
+                                    <input
+                                        v-model="exerciseForm.reps"
+                                        type="text"
+                                        placeholder="10 or 60s"
+                                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+                                    >
+                                </div>
+                            </div>
+                            <div class="flex gap-4 items-end">
+                                <div class="flex-1">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Rest (seconds) *</label>
+                                    <input
+                                        v-model.number="exerciseForm.rest"
+                                        type="number"
+                                        min="0"
+                                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+                                    >
+                                </div>
+                                <button
+                                    type="button"
+                                    @click="addExercise"
+                                    class="px-6 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition"
+                                >
+                                    ➕ Add Exercise
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Exercise List -->
+                        <div v-if="form.exercises.length === 0" class="text-center text-gray-500 py-8 bg-gray-50 rounded-lg">
+                            No exercises added yet. Add your first exercise above!
+                        </div>
+                        <div v-else class="space-y-3">
+                            <div v-for="(exercise, index) in form.exercises" :key="index"
+                                 class="bg-white border-2 border-gray-200 rounded-lg p-4 flex items-center gap-4"
+                            >
+                                <div class="flex-shrink-0 text-2xl font-bold text-purple-600">
+                                    {{ index + 1 }}
+                                </div>
+                                <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="md:col-span-2">
+                                        <p class="font-semibold text-gray-800">{{ exercise.name }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">
+                                            <span class="font-semibold">{{ exercise.sets }}</span> sets ×
+                                            <span class="font-semibold">{{ exercise.reps }}</span> reps
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">
+                                            Rest: <span class="font-semibold">{{ exercise.rest }}s</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0 flex gap-2">
+                                    <button
+                                        type="button"
+                                        @click="moveExerciseUp(index)"
+                                        :disabled="index === 0"
+                                        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition disabled:opacity-50"
+                                        title="Move up"
+                                    >
+                                        ⬆️
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="moveExerciseDown(index)"
+                                        :disabled="index === form.exercises.length - 1"
+                                        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition disabled:opacity-50"
+                                        title="Move down"
+                                    >
+                                        ⬇️
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="removeExercise(index)"
+                                        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                                        title="Remove"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Buttons -->
                     <div class="flex gap-4">
                         <button
@@ -477,6 +775,81 @@ const formTitle = computed(() => {
                         </button>
                     </div>
                 </form>
+            </div>
+
+            <!-- Assignment Modal -->
+            <div v-if="assignmentModal.show"
+                 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+                 @click.self="closeAssignmentModal"
+            >
+                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">
+                        👥 Assign Workout to Students
+                    </h3>
+                    <div class="mb-6">
+                        <p class="text-gray-600">
+                            Workout: <span class="font-semibold">{{ assignmentModal.workoutTitle }}</span>
+                        </p>
+                        <p v-if="assignmentModal.initiallyAssigned.length > 0" class="text-sm text-green-600 mt-1">
+                            Currently assigned to {{ assignmentModal.initiallyAssigned.length }} student(s)
+                        </p>
+                        <p v-else class="text-sm text-gray-500 mt-1">
+                            Not assigned to any students yet
+                        </p>
+                    </div>
+
+                    <!-- Students List -->
+                    <div class="space-y-3 mb-6">
+                        <div v-for="student in studentsList" :key="student.id"
+                             class="border-2 rounded-lg p-4 cursor-pointer transition"
+                             :class="assignmentModal.selectedStudents.includes(student.id)
+                                 ? 'border-purple-600 bg-purple-50'
+                                 : 'border-gray-200 hover:border-purple-300'"
+                             @click="toggleStudentSelection(student.id)"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 w-6 h-6 border-2 rounded flex items-center justify-center"
+                                     :class="assignmentModal.selectedStudents.includes(student.id)
+                                         ? 'border-purple-600 bg-purple-600'
+                                         : 'border-gray-300'"
+                                >
+                                    <span v-if="assignmentModal.selectedStudents.includes(student.id)" class="text-white text-sm">✓</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <p class="font-semibold text-gray-800">{{ student.name }}</p>
+                                        <span v-if="assignmentModal.initiallyAssigned.includes(student.id)"
+                                              class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-semibold"
+                                        >
+                                            Already Assigned
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">{{ student.email }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="studentsList.length === 0" class="text-center text-gray-500 py-8">
+                            No students found. Please add students first.
+                        </div>
+                    </div>
+
+                    <!-- Modal Actions -->
+                    <div class="flex gap-4">
+                        <button
+                            @click="assignWorkoutToStudents"
+                            class="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                            :disabled="assignmentModal.selectedStudents.length === 0"
+                        >
+                            ✅ Assign to {{ assignmentModal.selectedStudents.length }} student(s)
+                        </button>
+                        <button
+                            @click="closeAssignmentModal"
+                            class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
