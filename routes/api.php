@@ -92,4 +92,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/videos/{workoutId}/stats', [VideoController::class, 'stats']);
     Route::get('/videos/my-history', [VideoController::class, 'myHistory']);
     Route::post('/videos/upload', [VideoController::class, 'upload']);
+    Route::post('/thumbnails/upload', [VideoController::class, 'uploadThumbnail']);
 });

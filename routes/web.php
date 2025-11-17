@@ -38,6 +38,26 @@ Route::get('/admin', function () {
     ]);
 })->name('admin.dashboard');
 
+// Create workout page
+Route::get('/admin/workouts/create', function () {
+    return Inertia::render('WorkoutForm', [
+        'workout' => null,
+    ]);
+})->name('admin.workouts.create');
+
+// Edit workout page
+Route::get('/admin/workouts/{id}/edit', function ($id) {
+    $workout = Workout::with('exercises')->find($id);
+
+    if (!$workout) {
+        return redirect('/admin')->with('error', 'Workout not found');
+    }
+
+    return Inertia::render('WorkoutForm', [
+        'workout' => $workout,
+    ]);
+})->name('admin.workouts.edit');
+
 // Logout route
 Route::post('/admin/logout', function () {
     auth()->guard('sanctum')->user()?->tokens()->delete();

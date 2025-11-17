@@ -308,4 +308,67 @@ class VideoController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Upload thumbnail image for a workout
+     */
+    public function uploadThumbnail(Request $request)
+    {
+        $user = $request->user();
+
+        // Only admins can upload thumbnails
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can upload thumbnails'
+            ], 403);
+        }
+
+        // Validate the request
+        $validated = $request->validate([
+            'thumbnail' => [
+                'required',
+                'image',
+                'mimes:jpeg,jpg,png,webp',
+                'max:5120', // 5MB max
+            ],
+            'workout_id' => 'required|exists:workouts,id',
+        ]);
+
+        try {
+            $workout = Workout::find($request->workout_id);
+
+            // Check if admin owns this workout
+            if ($workout->admin_id !== $user->id) {
+                return response()->json([
+                    'message' => 'You can only upload thumbnails for your own workouts'
+                ], 403);
+            }
+
+            // Delete old thumbnail if exists and is a local file
+            if ($workout->thumbnail_path && !filter_var($workout->thumbnail_path, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($workout->thumbnail_path);
+            }
+
+            // Store thumbnail
+            $file = $request->file('thumbnail');
+            $filename = 'thumbnail_' . $workout->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('images/thumbnails', $filename, 'public');
+
+            // Update workout
+            $workout->thumbnail_path = $path;
+            $workout->save();
+
+            return response()->json([
+                'message' => 'Thumbnail uploaded successfully',
+                'workout' => $workout,
+                'thumbnail_url' => Storage::disk('public')->url($path),
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload thumbnail',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
