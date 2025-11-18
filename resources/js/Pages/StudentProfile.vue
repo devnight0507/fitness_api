@@ -127,13 +127,25 @@ const editWorkout = (workoutId) => {
 
 const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) {
-        const firstLetter = props.student.name ? props.student.name.charAt(0).toUpperCase() : 'S';
-        return `https://ui-avatars.com/api/?name=${encodeURIComponent(firstLetter)}&background=4ECDC4&color=fff&length=1&size=200`;
+        return null; // No avatar, will show initial with CSS
     }
     if (avatarPath.startsWith('http')) {
         return avatarPath;
     }
     return `/storage/${avatarPath}`;
+};
+
+const getInitial = (name) => {
+    if (!name) return 'S';
+
+    const nameParts = name.trim().split(' ');
+    if (nameParts.length === 1) {
+        return nameParts[0].charAt(0).toUpperCase();
+    }
+
+    const firstInitial = nameParts[0].charAt(0).toUpperCase();
+    const lastInitial = nameParts[nameParts.length - 1].charAt(0).toUpperCase();
+    return firstInitial + lastInitial;
 };
 
 const getThumbnailUrl = (thumbnailPath) => {
@@ -168,14 +180,18 @@ const getLocationLabel = (location) => {
                 </button>
 
                 <div class="flex items-center gap-6">
+                    <div v-if="studentData && !getAvatarUrl(studentData.avatar_path)" class="w-24 h-24 rounded-full border-4 border-purple-600 bg-teal-500 flex items-center justify-center">
+                        <span class="text-white text-4xl font-bold">{{ getInitial(studentData.name) }}</span>
+                    </div>
                     <img
-                        :src="getAvatarUrl(student.avatar_path)"
-                        :alt="student.name"
+                        v-else-if="studentData && getAvatarUrl(studentData.avatar_path)"
+                        :src="getAvatarUrl(studentData.avatar_path)"
+                        :alt="studentData.name"
                         class="w-24 h-24 rounded-full border-4 border-purple-600 object-cover"
                     >
                     <div class="flex-1">
-                        <h1 class="text-4xl font-bold text-gray-800">{{ student.name }}</h1>
-                        <p class="text-gray-600 mt-1">{{ student.email }}</p>
+                        <h1 class="text-4xl font-bold text-gray-800">{{ studentData?.name || student.name }}</h1>
+                        <p class="text-gray-600 mt-1">{{ studentData?.email || student.email }}</p>
                     </div>
                 </div>
             </div>

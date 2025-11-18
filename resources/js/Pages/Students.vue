@@ -64,13 +64,25 @@ const goToAdmin = () => {
 
 const getAvatarUrl = (student) => {
     if (!student.avatar_path) {
-        const firstLetter = student.name ? student.name.charAt(0).toUpperCase() : 'S';
-        return `https://ui-avatars.com/api/?name=${encodeURIComponent(firstLetter)}&background=4ECDC4&color=fff&length=1`;
+        return null; // No avatar, will show initial with CSS
     }
     if (student.avatar_path.startsWith('http')) {
         return student.avatar_path;
     }
     return `/storage/${student.avatar_path}`;
+};
+
+const getInitial = (name) => {
+    if (!name) return 'S';
+
+    const nameParts = name.trim().split(' ');
+    if (nameParts.length === 1) {
+        return nameParts[0].charAt(0).toUpperCase();
+    }
+
+    const firstInitial = nameParts[0].charAt(0).toUpperCase();
+    const lastInitial = nameParts[nameParts.length - 1].charAt(0).toUpperCase();
+    return firstInitial + lastInitial;
 };
 
 const formatDate = (dateString) => {
@@ -141,7 +153,11 @@ const formatDate = (dateString) => {
                 >
                     <!-- Student Avatar -->
                     <div class="h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                        <div v-if="!getAvatarUrl(student)" class="w-32 h-32 rounded-full border-4 border-white bg-teal-500 flex items-center justify-center">
+                            <span class="text-white text-5xl font-bold">{{ getInitial(student.name) }}</span>
+                        </div>
                         <img
+                            v-else
                             :src="getAvatarUrl(student)"
                             :alt="student.name"
                             class="w-32 h-32 rounded-full border-4 border-white object-cover"
