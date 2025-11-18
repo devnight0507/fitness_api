@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
+import { UsersIcon, FireIcon, CheckCircleIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
     workouts: Array,
@@ -98,9 +99,12 @@ const logout = () => {
             <!-- Header -->
             <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
                 <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-4xl font-bold text-gray-800 mb-2">🏋️ Fitness App Admin Panel</h1>
-                        <p class="text-gray-600">Manage workouts, students, nutrition plans, and more</p>
+                    <div class="flex items-center gap-4">
+                        <FireIcon class="w-12 h-12 text-purple-600" />
+                        <div>
+                            <h1 class="text-4xl font-bold text-gray-800">Fitness App Admin Panel</h1>
+                            <p class="text-gray-600">Manage workouts, students, nutrition plans, and more</p>
+                        </div>
                     </div>
                     <button
                         @click="logout"
@@ -118,7 +122,7 @@ const logout = () => {
                      @click="router.visit('/admin/students')"
                 >
                     <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white">
-                        <div class="text-5xl mb-3">👥</div>
+                        <UsersIcon class="w-14 h-14 mb-3" />
                         <h3 class="text-xl font-bold">Students</h3>
                     </div>
                     <div class="p-6">
@@ -135,7 +139,7 @@ const logout = () => {
                      @click="router.visit('/admin/workouts')"
                 >
                     <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white">
-                        <div class="text-5xl mb-3">💪</div>
+                        <FireIcon class="w-14 h-14 mb-3" />
                         <h3 class="text-xl font-bold">Workouts</h3>
                     </div>
                     <div class="p-6">
@@ -156,7 +160,7 @@ const logout = () => {
                             <p class="text-gray-600 text-sm mb-1">Total Workouts</p>
                             <p class="text-3xl font-bold text-purple-600">{{ workoutsList.length }}</p>
                         </div>
-                        <div class="text-4xl">💪</div>
+                        <FireIcon class="w-12 h-12 text-purple-600" />
                     </div>
                 </div>
 
@@ -166,7 +170,7 @@ const logout = () => {
                             <p class="text-gray-600 text-sm mb-1">Total Students</p>
                             <p class="text-3xl font-bold text-blue-600">{{ studentsList.length }}</p>
                         </div>
-                        <div class="text-4xl">👥</div>
+                        <UsersIcon class="w-12 h-12 text-blue-600" />
                     </div>
                 </div>
 
@@ -176,7 +180,7 @@ const logout = () => {
                             <p class="text-gray-600 text-sm mb-1">Active Plans</p>
                             <p class="text-3xl font-bold text-green-600">{{ workoutsList.filter(w => w.is_active).length }}</p>
                         </div>
-                        <div class="text-4xl">✅</div>
+                        <CheckCircleIcon class="w-12 h-12 text-green-600" />
                     </div>
                 </div>
             </div>

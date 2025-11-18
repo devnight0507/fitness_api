@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
+import { UsersIcon, MagnifyingGlassIcon, CakeIcon, FlagIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
     students: Array,
@@ -97,9 +98,12 @@ const formatDate = (dateString) => {
             <!-- Header -->
             <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
                 <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-4xl font-bold text-gray-800 mb-2">👥 Students Management</h1>
-                        <p class="text-gray-600">Manage student profiles and training plans</p>
+                    <div class="flex items-center gap-4">
+                        <UsersIcon class="w-10 h-10 text-purple-600" />
+                        <div>
+                            <h1 class="text-4xl font-bold text-gray-800">Students Management</h1>
+                            <p class="text-gray-600">Manage student profiles and training plans</p>
+                        </div>
                     </div>
                     <div class="flex gap-3">
                         <button
@@ -127,9 +131,7 @@ const formatDate = (dateString) => {
                         placeholder="Search students by name, email, or goal..."
                         class="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-purple-600 focus:outline-none transition"
                     >
-                    <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">
-                        🔍
-                    </span>
+                    <MagnifyingGlassIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
                 </div>
             </div>
 
@@ -171,11 +173,11 @@ const formatDate = (dateString) => {
 
                         <div class="space-y-2 mb-4">
                             <div v-if="student.age" class="flex items-center gap-2 text-sm text-gray-600">
-                                <span>🎂</span>
+                                <CakeIcon class="w-5 h-5" />
                                 <span>{{ student.age }} years old</span>
                             </div>
                             <div v-if="student.goal" class="flex items-center gap-2 text-sm text-gray-600">
-                                <span>🎯</span>
+                                <FlagIcon class="w-5 h-5" />
                                 <span class="line-clamp-2">{{ student.goal }}</span>
                             </div>
                         </div>
@@ -202,7 +204,7 @@ const formatDate = (dateString) => {
                         <p class="text-gray-600 text-sm">Total Students</p>
                         <p class="text-3xl font-bold text-purple-600">{{ filteredStudents.length }}</p>
                     </div>
-                    <div class="text-5xl">👥</div>
+                    <UsersIcon class="w-14 h-14 text-purple-600" />
                 </div>
             </div>
         </div>

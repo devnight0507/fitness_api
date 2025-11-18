@@ -1,4 +1,6 @@
 <script setup>
+import { CheckCircleIcon, ArrowLeftIcon } from '@heroicons/vue/24/solid';
+
 defineProps({
     milestones: Array,
 });
@@ -40,7 +42,7 @@ defineProps({
 
                 <ul class="space-y-3 mb-6">
                     <li v-for="(milestone, index) in milestones" :key="index" class="flex items-start pb-3 border-b border-gray-200 last:border-0">
-                        <span class="text-green-500 font-bold mr-3 text-xl">✓</span>
+                        <CheckCircleIcon class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" />
                         <span class="text-gray-700">{{ milestone }}</span>
                     </li>
                 </ul>
@@ -50,7 +52,8 @@ defineProps({
                 </p>
 
                 <a href="/admin" class="inline-block mt-6 text-purple-600 font-semibold hover:underline text-lg">
-                    ← Back to Admin Panel
+                    <ArrowLeftIcon class="w-4 h-4 inline-block mr-2" />
+                    Back to Admin Panel
                 </a>
             </div>
         </div>

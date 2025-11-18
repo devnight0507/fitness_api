@@ -2,6 +2,17 @@
 import { ref, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
+import {
+    FireIcon,
+    PlusIcon,
+    PencilIcon,
+    TrashIcon,
+    HomeIcon,
+    BuildingOffice2Icon,
+    ClockIcon,
+    FolderIcon,
+    ArrowLeftIcon
+} from '@heroicons/vue/24/outline';
 
 const props = defineProps({
     workouts: Array,
@@ -230,16 +241,20 @@ const getThumbnailUrl = (thumbnailPath) => {
             <!-- Header -->
             <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
                 <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-4xl font-bold text-gray-800 mb-2">💪 Workouts Management</h1>
-                        <p class="text-gray-600">Create and manage workout classes for all students</p>
+                    <div class="flex items-center gap-4">
+                        <FireIcon class="w-10 h-10 text-purple-600" />
+                        <div>
+                            <h1 class="text-4xl font-bold text-gray-800">Workouts Management</h1>
+                            <p class="text-gray-600">Create and manage workout classes for all students</p>
+                        </div>
                     </div>
                     <div class="flex gap-3">
                         <button
                             @click="goToAdmin"
                             class="px-6 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition"
                         >
-                            ← Back to Dashboard
+                            <ArrowLeftIcon class="w-5 h-5 inline-block mr-2" />
+                            Back to Dashboard
                         </button>
                         <button
                             @click="logout"
@@ -253,12 +268,13 @@ const getThumbnailUrl = (thumbnailPath) => {
 
             <!-- Workouts Section Header -->
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-white">📋 All Workouts (Classes)</h2>
+                <h2 class="text-2xl font-bold text-white">All Workouts (Classes)</h2>
                 <button
                     @click="createWorkout"
                     class="px-6 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl"
                 >
-                    ➕ Create New Workout
+                    <PlusIcon class="w-5 h-5 inline-block mr-2" />
+                    Create New Workout
                 </button>
             </div>
 
@@ -282,30 +298,42 @@ const getThumbnailUrl = (thumbnailPath) => {
                         <div class="p-6">
                             <h3 class="text-xl font-bold text-gray-800 mb-3">{{ workout.title }}</h3>
                             <div class="flex gap-4 mb-4 text-sm text-gray-600">
-                                <span>{{ workout.location === 'home' ? '🏠' : '🏋️' }} {{ workout.location === 'home' ? 'Home' : 'Gym' }}</span>
-                                <span>⏱️ {{ workout.duration }}</span>
-                                <span>📊 {{ workout.level }}</span>
-                                <span>📁 {{ workout.category }}</span>
+                                <span class="flex items-center gap-1">
+                                    <component :is="workout.location === 'home' ? HomeIcon : BuildingOffice2Icon" class="w-4 h-4" />
+                                    {{ workout.location === 'home' ? 'Home' : 'Gym' }}
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <ClockIcon class="w-4 h-4" />
+                                    {{ workout.duration }}
+                                </span>
+                                <span>{{ workout.level }}</span>
+                                <span class="flex items-center gap-1">
+                                    <FolderIcon class="w-4 h-4" />
+                                    {{ workout.category }}
+                                </span>
                             </div>
                             <p class="text-gray-600 text-sm mb-4">{{ workout.description || 'No description' }}</p>
                             <p class="text-sm mb-2" :class="workout.video_path || workout.youtube_url ? 'text-green-600' : 'text-red-600'">
-                                {{ workout.video_path ? '✅ Local video uploaded' : workout.youtube_url ? '✅ YouTube video linked' : '❌ No video' }}
+                                {{ workout.video_path ? 'Local video uploaded' : workout.youtube_url ? 'YouTube video linked' : 'No video' }}
                             </p>
                             <p class="text-sm mb-4 text-blue-600">
-                                💪 {{ workout.exercise_count || 0 }} exercises
+                                <FireIcon class="w-4 h-4 inline-block mr-1" />
+                                {{ workout.exercise_count || 0 }} exercises
                             </p>
                             <div class="flex gap-2 mb-2">
                                 <button
                                     @click="editWorkout(workout.id)"
                                     class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
                                 >
-                                    ✏️ Edit
+                                    <PencilIcon class="w-4 h-4 inline-block mr-1" />
+                                    Edit
                                 </button>
                                 <button
                                     @click="deleteWorkout(workout.id)"
                                     class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition"
                                 >
-                                    🗑️ Delete
+                                    <TrashIcon class="w-4 h-4 inline-block mr-1" />
+                                    Delete
                                 </button>
                             </div>
                             <button

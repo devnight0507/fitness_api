@@ -2,6 +2,16 @@
 import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
+import {
+    HomeIcon,
+    BuildingOffice2Icon,
+    FireIcon,
+    PlusIcon,
+    ArrowUpIcon,
+    ArrowDownIcon,
+    TrashIcon,
+    ArrowUturnLeftIcon
+} from '@heroicons/vue/24/outline';
 
 const props = defineProps({
     workout: Object, // Will be null for create, populated for edit
@@ -348,8 +358,8 @@ const goBack = () => {
                                 required
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none transition"
                             >
-                                <option value="gym">🏋️ Gym</option>
-                                <option value="home">🏠 Home</option>
+                                <option value="gym">Gym</option>
+                                <option value="home">Home</option>
                             </select>
                         </div>
                         <div>
@@ -444,7 +454,10 @@ const goBack = () => {
 
                     <!-- Exercise Builder Section -->
                     <div class="border-t-2 border-gray-200 pt-6">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-4">💪 Workout Exercises</h3>
+                        <div class="flex items-center gap-3 mb-4">
+                            <FireIcon class="w-8 h-8 text-purple-600" />
+                            <h3 class="text-2xl font-bold text-gray-800">Workout Exercises</h3>
+                        </div>
                         <p class="text-sm text-gray-600 mb-4">Build your personalized workout by adding exercises with sets, reps, and rest times.</p>
 
                         <!-- Add Exercise Form -->
@@ -494,7 +507,8 @@ const goBack = () => {
                                     @click="addExercise"
                                     class="px-6 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition"
                                 >
-                                    ➕ Add Exercise
+                                    <PlusIcon class="w-5 h-5 inline-block mr-2" />
+                                    Add Exercise
                                 </button>
                             </div>
                         </div>
@@ -534,7 +548,7 @@ const goBack = () => {
                                         class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition disabled:opacity-50"
                                         title="Move up"
                                     >
-                                        ⬆️
+                                        <ArrowUpIcon class="w-4 h-4" />
                                     </button>
                                     <button
                                         type="button"
@@ -543,7 +557,7 @@ const goBack = () => {
                                         class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition disabled:opacity-50"
                                         title="Move down"
                                     >
-                                        ⬇️
+                                        <ArrowDownIcon class="w-4 h-4" />
                                     </button>
                                     <button
                                         type="button"
@@ -551,7 +565,7 @@ const goBack = () => {
                                         class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
                                         title="Remove"
                                     >
-                                        🗑️
+                                        <TrashIcon class="w-4 h-4" />
                                     </button>
                                 </div>
                             </div>
@@ -565,8 +579,8 @@ const goBack = () => {
                             :disabled="isSaving || isUploading"
                             class="flex-1 px-8 py-4 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all hover:-translate-y-0.5 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <span v-if="!isSaving">💾 {{ form.id ? 'Update' : 'Create' }} Workout</span>
-                            <span v-else>⏳ Saving...</span>
+                            <span v-if="!isSaving">{{ form.id ? 'Update' : 'Create' }} Workout</span>
+                            <span v-else>Saving...</span>
                         </button>
                         <button
                             type="button"

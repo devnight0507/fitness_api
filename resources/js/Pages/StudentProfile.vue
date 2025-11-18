@@ -2,6 +2,16 @@
 import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
+import {
+    FireIcon,
+    PencilIcon,
+    PlusIcon,
+    ClockIcon,
+    FolderIcon,
+    HomeIcon,
+    BuildingOffice2Icon,
+    ArrowLeftIcon
+} from '@heroicons/vue/24/outline';
 
 const props = defineProps({
     student: Object,
@@ -159,7 +169,7 @@ const getThumbnailUrl = (thumbnailPath) => {
 };
 
 const getLocationIcon = (location) => {
-    return location === 'home' ? '🏠' : '🏋️';
+    return location === 'home' ? HomeIcon : BuildingOffice2Icon;
 };
 
 const getLocationLabel = (location) => {
@@ -176,7 +186,8 @@ const getLocationLabel = (location) => {
                     @click="goBack"
                     class="mb-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
                 >
-                    ← Back to Students
+                    <ArrowLeftIcon class="w-4 h-4 inline-block mr-2" />
+                    Back to Students
                 </button>
 
                 <div class="flex items-center gap-6">
@@ -206,7 +217,7 @@ const getLocationLabel = (location) => {
                             activeTab === 'personal' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         ]"
                     >
-                        👤 Personal Data
+                        Personal Data
                     </button>
                     <button
                         @click="activeTab = 'workouts'"
@@ -215,7 +226,7 @@ const getLocationLabel = (location) => {
                             activeTab === 'workouts' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         ]"
                     >
-                        💪 Workouts ({{ workouts.length }})
+                        Workouts ({{ workouts.length }})
                     </button>
                 </div>
 
@@ -228,7 +239,8 @@ const getLocationLabel = (location) => {
                             @click="isEditing = true"
                             class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                         >
-                            ✏️ Edit
+                            <PencilIcon class="w-4 h-4 inline-block mr-1" />
+                            Edit
                         </button>
                         <div v-else class="flex gap-2">
                             <button
@@ -355,7 +367,8 @@ const getLocationLabel = (location) => {
                             @click="createWorkoutForStudent"
                             class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition shadow-lg"
                         >
-                            ➕ Create New Workout
+                            <PlusIcon class="w-5 h-5 inline-block mr-2" />
+                            Create New Workout
                         </button>
                     </div>
 
@@ -382,7 +395,7 @@ const getLocationLabel = (location) => {
                             >
                             <div class="p-4">
                                 <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-2xl">{{ getLocationIcon(workout.location) }}</span>
+                                    <component :is="getLocationIcon(workout.location)" class="w-6 h-6 text-gray-600" />
                                     <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded">
                                         {{ getLocationLabel(workout.location) }}
                                     </span>
@@ -394,19 +407,27 @@ const getLocationLabel = (location) => {
                                 <h3 class="text-lg font-bold text-gray-800 mb-2">{{ workout.title }}</h3>
 
                                 <div class="flex gap-4 mb-3 text-sm text-gray-600">
-                                    <span>⏱️ {{ workout.duration }}</span>
-                                    <span>📁 {{ workout.category }}</span>
+                                    <span class="flex items-center gap-1">
+                                        <ClockIcon class="w-4 h-4" />
+                                        {{ workout.duration }}
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <FolderIcon class="w-4 h-4" />
+                                        {{ workout.category }}
+                                    </span>
                                 </div>
 
                                 <p class="text-sm text-gray-600 mb-4">
-                                    💪 {{ workout.exercises?.length || 0 }} exercises
+                                    <FireIcon class="w-4 h-4 inline-block mr-1" />
+                                    {{ workout.exercises?.length || 0 }} exercises
                                 </p>
 
                                 <button
                                     @click="editWorkout(workout.id)"
                                     class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
                                 >
-                                    ✏️ Edit Workout
+                                    <PencilIcon class="w-4 h-4 inline-block mr-1" />
+                                    Edit Workout
                                 </button>
                             </div>
                         </div>
