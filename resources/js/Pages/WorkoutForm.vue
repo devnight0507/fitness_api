@@ -11,7 +11,8 @@ import {
     ArrowDownIcon,
     TrashIcon,
     ArrowUturnLeftIcon,
-    PhotoIcon
+    PhotoIcon,
+    UsersIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -19,6 +20,11 @@ const props = defineProps({
 });
 
 const toast = useToast();
+
+// Detect student_id from URL params for personal workouts
+const urlParams = new URLSearchParams(window.location.search);
+const studentId = ref(urlParams.get('student_id'));
+const isPersonalWorkout = computed(() => !!studentId.value);
 
 // Form state
 const form = ref({
@@ -34,6 +40,8 @@ const form = ref({
     video_file: null,
     thumbnail_file: null,
     exercises: [],
+    is_personal: false,
+    assigned_user_id: null,
 });
 
 const videoFileName = ref('Click to upload video (MP4, MOV, AVI, MKV, WEBM)');
@@ -80,12 +88,17 @@ onMounted(() => {
             video_file: null,
             thumbnail_file: null,
             exercises: props.workout.exercises || [],
+            is_personal: props.workout.is_personal || false,
+            assigned_user_id: props.workout.assigned_user_id || null,
         };
     }
 });
 
 const pageTitle = computed(() => {
-    return form.value.id ? 'Edit Workout' : 'Create New Workout';
+    if (form.value.id) {
+        return form.value.is_personal ? 'Edit Personal Workout' : 'Edit Workout';
+    }
+    return studentId.value ? 'Create Personal Workout for Student' : 'Create New Workout';
 });
 
 const handleVideoChange = (event) => {
@@ -105,18 +118,23 @@ const handleThumbnailChange = (event) => {
 };
 
 const addExercise = () => {
+
     if (!exerciseForm.value.name.trim()) {
         toast.error('Please enter exercise name');
         return;
     }
 
-    form.value.exercises.push({
+    const newExercise = {
         name: exerciseForm.value.name,
         sets: exerciseForm.value.sets,
         reps: exerciseForm.value.reps,
         rest: exerciseForm.value.rest,
         order_index: form.value.exercises.length,
-    });
+    };
+
+    form.value.exercises.push(newExercise);
+
+    toast.success('Exercise added!');
 
     // Reset exercise form
     exerciseForm.value = {
@@ -163,12 +181,12 @@ const submitWorkout = async () => {
     const url = form.value.id ? `/api/workouts/${form.value.id}` : '/api/workouts';
     const method = form.value.id ? 'PUT' : 'POST';
 
-    // Convert exercise numeric fields to strings for backend validation
+    // Prepare exercises data - keep sets and rest as numbers
     const exercises = form.value.exercises.map(ex => ({
         name: ex.name,
-        sets: ex.sets?.toString() || null,
-        reps: ex.reps?.toString() || null,
-        rest: ex.rest?.toString() || null,
+        sets: ex.sets || null,
+        reps: ex.reps?.toString() || null, // reps can be string like "60 sec"
+        rest: ex.rest || null,
         order_index: ex.order_index,
     }));
 
@@ -182,7 +200,13 @@ const submitWorkout = async () => {
         thumbnail_path: form.value.thumbnail_path,
         youtube_url: form.value.youtube_url,
         exercises: exercises,
+        is_personal: form.value.id ? form.value.is_personal : (studentId.value ? true : false),
+        assigned_user_id: form.value.id ? form.value.assigned_user_id : (studentId.value ? parseInt(studentId.value) : null),
     };
+
+    console.log('Submitting workout with data:', data);
+    console.log('Exercises count:', exercises.length);
+    console.log('Exercises array:', exercises);
 
     try {
         const response = await fetch(url, {
@@ -215,9 +239,19 @@ const submitWorkout = async () => {
 
             toast.success(message);
 
-            // Redirect back to workouts page
+            // Redirect back to appropriate page
             setTimeout(() => {
-                router.visit('/admin/workouts');
+                // Check if workout is personal (either from savedWorkout or form data)
+                const isPersonal = savedWorkout.is_personal || form.value.is_personal;
+                const assignedUserId = savedWorkout.assigned_user_id || form.value.assigned_user_id;
+
+                if (isPersonal && assignedUserId) {
+                    // If it's a personal workout, go back to student profile
+                    router.visit(`/admin/students/${assignedUserId}`);
+                } else {
+                    // Otherwise go to workouts list
+                    router.visit('/admin/workouts');
+                }
             }, 1500);
         } else {
             const error = await response.json();
@@ -299,7 +333,14 @@ const uploadThumbnail = async (workoutId) => {
 };
 
 const goBack = () => {
-    window.location.href = '/admin/workouts';
+    // If editing a personal workout or creating one via student ID, go back to student page
+    if (form.value.is_personal && form.value.assigned_user_id) {
+        router.visit(`/admin/students/${form.value.assigned_user_id}`);
+    } else if (studentId.value) {
+        router.visit(`/admin/students/${studentId.value}`);
+    } else {
+        router.visit('/admin/workouts');
+    }
 };
 </script>
 
@@ -312,12 +353,17 @@ const goBack = () => {
                     <div>
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">{{ pageTitle }}</h1>
                         <p class="text-gray-600">Fill in the details below to {{ form.id ? 'update' : 'create' }} a workout</p>
+                        <div v-if="studentId || form.is_personal" class="mt-3 inline-block px-4 py-2 bg-blue-100 text-blue-800 rounded-lg font-semibold text-sm">
+                            <UsersIcon class="w-4 h-4 inline-block mr-2" />
+                            Personal Workout - Will be assigned only to this student
+                        </div>
                     </div>
                     <button
                         @click="goBack"
                         class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition-all hover:-translate-y-0.5 shadow-lg"
                     >
-                        ← Back to Admin
+                        <ArrowUturnLeftIcon class="w-5 h-5 inline-block mr-2" />
+                        Back
                     </button>
                 </div>
             </div>

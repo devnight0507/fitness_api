@@ -19,10 +19,13 @@ class Workout extends Model
         'video_duration',
         'admin_id',
         'is_active',
+        'is_personal',
+        'assigned_user_id',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_personal' => 'boolean',
         'video_duration' => 'integer',
     ];
 
@@ -32,6 +35,11 @@ class Workout extends Model
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');
+    }
+
+    public function assignedUser()
+    {
+        return $this->belongsTo(User::class, 'assigned_user_id');
     }
 
     public function exercises()

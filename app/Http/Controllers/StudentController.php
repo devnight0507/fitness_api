@@ -57,9 +57,20 @@ class StudentController extends Controller
         $student = User::where('role', 'student')->findOrFail($id);
 
         // Get student's workouts with exercises
-        $workouts = Workout::whereHas('assignments', function($query) use ($id) {
-            $query->where('user_id', $id);
-        })->with('exercises')->get();
+        // Include both assigned workouts and personal workouts
+        $workouts = Workout::where(function($query) use ($id) {
+            // Get workouts assigned via user_assignments (public workouts)
+            $query->whereHas('assignments', function($q) use ($id) {
+                $q->where('user_id', $id);
+            });
+        })
+        // OR get personal workouts created specifically for this student
+        ->orWhere(function($query) use ($id) {
+            $query->where('is_personal', true)
+                  ->where('assigned_user_id', $id);
+        })
+        ->with('exercises')
+        ->get();
 
         return response()->json([
             'student' => $student,

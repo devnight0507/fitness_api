@@ -226,7 +226,7 @@ const getLocationLabel = (location) => {
                             activeTab === 'workouts' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         ]"
                     >
-                        Workouts ({{ workouts.length }})
+                        Workouts ({{ workoutsData.length }})
                     </button>
                 </div>
 
@@ -372,7 +372,7 @@ const getLocationLabel = (location) => {
                         </button>
                     </div>
 
-                    <div v-if="workouts.length === 0" class="bg-gray-50 rounded-xl p-12 text-center">
+                    <div v-if="workoutsData.length === 0" class="bg-gray-50 rounded-xl p-12 text-center">
                         <p class="text-gray-600 text-lg mb-4">No workouts assigned yet</p>
                         <button
                             @click="createWorkoutForStudent"
@@ -384,7 +384,7 @@ const getLocationLabel = (location) => {
 
                     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div
-                            v-for="workout in workouts"
+                            v-for="workout in workoutsData"
                             :key="workout.id"
                             class="bg-white border-2 border-gray-200 rounded-xl overflow-hidden hover:border-purple-600 transition-all hover:shadow-xl"
                         >

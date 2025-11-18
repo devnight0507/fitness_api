@@ -13,7 +13,8 @@ class WorkoutController extends Controller
     public function index(Request $request)
     {
         $query = Workout::with(['exercises', 'admin'])
-            ->where('is_active', true);
+            ->where('is_active', true)
+            ->where('is_personal', false); // Exclude personal workouts from public list
 
         // Filter by category
         if ($request->has('category')) {
@@ -45,10 +46,19 @@ class WorkoutController extends Controller
         }
 
         $workouts = Workout::with(['exercises', 'admin'])
-            ->whereHas('assignments', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
             ->where('is_active', true)
+            ->where(function($query) use ($user) {
+                // Get workouts assigned via user_assignments table (public workouts)
+                $query->whereHas('assignments', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                });
+            })
+            // OR get personal workouts assigned directly to this user
+            ->orWhere(function($query) use ($user) {
+                $query->where('is_personal', true)
+                      ->where('assigned_user_id', $user->id)
+                      ->where('is_active', true);
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -115,15 +125,18 @@ class WorkoutController extends Controller
             'video_duration' => 'nullable|integer',
             'exercises' => 'nullable|array',
             'exercises.*.name' => 'required|string',
-            'exercises.*.sets' => 'nullable|string',
+            'exercises.*.sets' => 'nullable|integer',
             'exercises.*.reps' => 'nullable|string',
-            'exercises.*.rest' => 'nullable|string',
+            'exercises.*.rest' => 'nullable|integer',
             'exercises.*.order_index' => 'nullable|integer',
+            'is_personal' => 'nullable|boolean',
+            'assigned_user_id' => 'nullable|exists:users,id',
         ]);
 
         $workout = Workout::create([
             'title' => $request->title,
             'category' => $request->category,
+            'location' => $request->location,
             'duration' => $request->duration,
             'level' => $request->level,
             'description' => $request->description,
@@ -133,19 +146,28 @@ class WorkoutController extends Controller
             'video_duration' => $request->video_duration,
             'admin_id' => $user->id,
             'is_active' => true,
+            'is_personal' => $request->is_personal ?? false,
+            'assigned_user_id' => $request->assigned_user_id,
         ]);
 
         // Create exercises if provided
-        if ($request->has('exercises')) {
+        if ($request->has('exercises') && is_array($request->exercises) && count($request->exercises) > 0) {
+            \Log::info('Creating exercises:', ['count' => count($request->exercises), 'exercises' => $request->exercises]);
+
             foreach ($request->exercises as $index => $exercise) {
-                $workout->exercises()->create([
+                $exerciseData = [
                     'name' => $exercise['name'],
                     'sets' => $exercise['sets'] ?? null,
                     'reps' => $exercise['reps'] ?? null,
                     'rest' => $exercise['rest'] ?? null,
                     'order_index' => $exercise['order_index'] ?? $index,
-                ]);
+                ];
+
+                \Log::info('Creating exercise:', $exerciseData);
+                $workout->exercises()->create($exerciseData);
             }
+        } else {
+            \Log::info('No exercises to create', ['has_exercises' => $request->has('exercises'), 'exercises' => $request->exercises]);
         }
 
         return response()->json(
@@ -195,10 +217,12 @@ class WorkoutController extends Controller
             'video_duration' => 'nullable|integer',
             'exercises' => 'nullable|array',
             'exercises.*.name' => 'required|string',
-            'exercises.*.sets' => 'nullable|string',
+            'exercises.*.sets' => 'nullable|integer',
             'exercises.*.reps' => 'nullable|string',
-            'exercises.*.rest' => 'nullable|string',
+            'exercises.*.rest' => 'nullable|integer',
             'exercises.*.order_index' => 'nullable|integer',
+            'is_personal' => 'nullable|boolean',
+            'assigned_user_id' => 'nullable|exists:users,id',
         ]);
 
         $workout->update($request->only([
@@ -212,6 +236,8 @@ class WorkoutController extends Controller
             'video_path',
             'youtube_url',
             'video_duration',
+            'is_personal',
+            'assigned_user_id',
         ]));
 
         // Update exercises if provided
