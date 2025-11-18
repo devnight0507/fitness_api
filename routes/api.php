@@ -93,4 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/videos/my-history', [VideoController::class, 'myHistory']);
     Route::post('/videos/upload', [VideoController::class, 'upload']);
     Route::post('/thumbnails/upload', [VideoController::class, 'uploadThumbnail']);
+
+    // Students
+    Route::get('/students/{id}', [\App\Http\Controllers\StudentController::class, 'show']);
 });

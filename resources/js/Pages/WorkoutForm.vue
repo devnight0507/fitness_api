@@ -14,6 +14,7 @@ const form = ref({
     id: null,
     title: '',
     category: '',
+    location: 'gym',
     duration: '',
     level: '',
     description: '',
@@ -39,18 +40,13 @@ const exerciseForm = ref({
 });
 
 onMounted(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-        window.location.href = '/admin/login';
-        return;
-    }
-
     // If editing, populate form
     if (props.workout) {
         form.value = {
             id: props.workout.id,
             title: props.workout.title,
             category: props.workout.category,
+            location: props.workout.location || 'gym',
             duration: props.workout.duration,
             level: props.workout.level,
             description: props.workout.description || '',
@@ -154,6 +150,7 @@ const submitWorkout = async () => {
     const data = {
         title: form.value.title,
         category: form.value.category,
+        location: form.value.location,
         duration: form.value.duration,
         level: form.value.level,
         description: form.value.description,
@@ -193,9 +190,9 @@ const submitWorkout = async () => {
 
             toast.success(message);
 
-            // Redirect back to admin panel
+            // Redirect back to workouts page
             setTimeout(() => {
-                window.location.href = '/admin';
+                router.visit('/admin/workouts');
             }, 1500);
         } else {
             const error = await response.json();
@@ -277,7 +274,7 @@ const uploadThumbnail = async (workoutId) => {
 };
 
 const goBack = () => {
-    window.location.href = '/admin';
+    window.location.href = '/admin/workouts';
 };
 </script>
 
@@ -342,19 +339,32 @@ const goBack = () => {
                         </div>
                     </div>
 
-                    <!-- Level -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Level *</label>
-                        <select
-                            v-model="form.level"
-                            required
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none transition"
-                        >
-                            <option value="">Select level</option>
-                            <option value="Beginner">Beginner</option>
-                            <option value="Intermediate">Intermediate</option>
-                            <option value="Advanced">Advanced</option>
-                        </select>
+                    <!-- Location & Level -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Location *</label>
+                            <select
+                                v-model="form.location"
+                                required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none transition"
+                            >
+                                <option value="gym">🏋️ Gym</option>
+                                <option value="home">🏠 Home</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Level *</label>
+                            <select
+                                v-model="form.level"
+                                required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none transition"
+                            >
+                                <option value="">Select level</option>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Description -->

@@ -2,8 +2,20 @@ import './bootstrap';
 import '../css/app.css';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
+
+// Add global headers to all Inertia requests (both initial and subsequent)
+router.on('before', (event) => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        event.detail.visit.headers = {
+            ...event.detail.visit.headers,
+            'Authorization': `Bearer ${token}`,
+        };
+    }
+});
 
 createInertiaApp({
     resolve: name => {

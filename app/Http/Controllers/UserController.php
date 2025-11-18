@@ -170,7 +170,7 @@ class UserController extends Controller
             $query->where('role', $request->role);
         }
 
-        $users = $query->select('id', 'name', 'email', 'role', 'avatar_path', 'created_at')
+        $users = $query->select('id', 'name', 'email', 'role', 'avatar_path', 'age', 'goal', 'created_at')
             ->orderBy('name')
             ->get();
 

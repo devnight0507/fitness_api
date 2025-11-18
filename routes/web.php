@@ -58,6 +58,27 @@ Route::get('/admin/workouts/{id}/edit', function ($id) {
     ]);
 })->name('admin.workouts.edit');
 
+// Workouts management page
+Route::get('/admin/workouts', function () {
+    return Inertia::render('Workouts');
+})->name('admin.workouts');
+
+// Students management
+Route::get('/admin/students', function () {
+    return Inertia::render('Students', [
+        'students' => [],
+        'user' => null,
+    ]);
+})->name('admin.students');
+
+Route::get('/admin/students/{id}', function ($id) {
+    return Inertia::render('StudentProfile', [
+        'student' => ['id' => $id],
+        'workouts' => [],
+        'user' => null,
+    ]);
+})->name('admin.students.show');
+
 // Logout route
 Route::post('/admin/logout', function () {
     auth()->guard('sanctum')->user()?->tokens()->delete();

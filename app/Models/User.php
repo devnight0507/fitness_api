@@ -30,6 +30,8 @@ class User extends Authenticatable
         'height',
         'age',
         'goal',
+        'injuries',
+        'notes',
         'admin_id',
     ];
 

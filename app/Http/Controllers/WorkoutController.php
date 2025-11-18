@@ -105,6 +105,7 @@ class WorkoutController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|in:Gym,Home,Outdoor,HIIT,Cardio,Strength',
+            'location' => 'required|in:home,gym',
             'duration' => 'required|string|max:50',
             'level' => 'required|in:Beginner,Intermediate,Advanced',
             'description' => 'nullable|string',
@@ -184,6 +185,7 @@ class WorkoutController extends Controller
         $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'category' => 'sometimes|required|in:Gym,Home,Outdoor,HIIT,Cardio,Strength',
+            'location' => 'sometimes|required|in:home,gym',
             'duration' => 'sometimes|required|string|max:50',
             'level' => 'sometimes|required|in:Beginner,Intermediate,Advanced',
             'description' => 'nullable|string',
@@ -202,6 +204,7 @@ class WorkoutController extends Controller
         $workout->update($request->only([
             'title',
             'category',
+            'location',
             'duration',
             'level',
             'description',

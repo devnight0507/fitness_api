@@ -9,6 +9,7 @@ class Workout extends Model
     protected $fillable = [
         'title',
         'category',
+        'location',
         'duration',
         'level',
         'description',
