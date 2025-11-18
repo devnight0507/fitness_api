@@ -10,7 +10,8 @@ import {
     ArrowUpIcon,
     ArrowDownIcon,
     TrashIcon,
-    ArrowUturnLeftIcon
+    ArrowUturnLeftIcon,
+    PhotoIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -47,6 +48,20 @@ const exerciseForm = ref({
     sets: 3,
     reps: '10',
     rest: 60,
+});
+
+// Computed property to display thumbnail URL properly
+const displayThumbnailUrl = computed(() => {
+    const path = form.value.thumbnail_path;
+    if (!path) return '';
+
+    // If it's already a full URL, return as is
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+    }
+
+    // If it's a local storage path, convert to full URL with app URL
+    return `${window.location.origin}/storage/${path}`;
 });
 
 onMounted(() => {
@@ -438,16 +453,20 @@ const goBack = () => {
                                 accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                                 class="hidden"
                             >
-                            <p class="text-gray-700">📷 {{ thumbnailFileName }}</p>
+                            <div class="flex items-center justify-center gap-2 text-gray-700">
+                                <PhotoIcon class="w-5 h-5" />
+                                <p>{{ thumbnailFileName }}</p>
+                            </div>
                             <p class="text-sm text-gray-500 mt-2">Max size: 5MB</p>
                         </div>
 
                         <!-- OR Thumbnail URL -->
                         <p class="text-sm font-semibold text-gray-600 mb-2 text-center">OR use image URL</p>
                         <input
-                            v-model="form.thumbnail_path"
+                            :value="displayThumbnailUrl"
+                            @input="form.thumbnail_path = $event.target.value"
                             type="url"
-                            placeholder="https://..."
+                            placeholder="https://... or https://youtu.be/..."
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none transition"
                         >
                     </div>

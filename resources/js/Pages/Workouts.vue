@@ -11,7 +11,9 @@ import {
     BuildingOffice2Icon,
     ClockIcon,
     FolderIcon,
-    ArrowLeftIcon
+    ArrowLeftIcon,
+    UsersIcon,
+    CheckCircleIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -340,7 +342,8 @@ const getThumbnailUrl = (thumbnailPath) => {
                                 @click="openAssignmentModal(workout)"
                                 class="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition"
                             >
-                                👥 Assign to Students
+                                <UsersIcon class="w-4 h-4 inline-block mr-1" />
+                                Assign to Students
                             </button>
                         </div>
                     </div>
@@ -353,8 +356,9 @@ const getThumbnailUrl = (thumbnailPath) => {
                  @click.self="closeAssignmentModal"
             >
                 <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">
-                        👥 Assign Workout to Students
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <UsersIcon class="w-6 h-6" />
+                        Assign Workout to Students
                     </h3>
                     <div class="mb-6">
                         <p class="text-gray-600">
@@ -383,7 +387,7 @@ const getThumbnailUrl = (thumbnailPath) => {
                                          ? 'border-purple-600 bg-purple-600'
                                          : 'border-gray-300'"
                                 >
-                                    <span v-if="assignmentModal.selectedStudents.includes(student.id)" class="text-white text-sm">✓</span>
+                                    <CheckCircleIcon v-if="assignmentModal.selectedStudents.includes(student.id)" class="w-4 h-4 text-white" />
                                 </div>
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2">
@@ -410,7 +414,8 @@ const getThumbnailUrl = (thumbnailPath) => {
                             class="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
                             :disabled="assignmentModal.selectedStudents.length === 0"
                         >
-                            ✅ Assign to {{ assignmentModal.selectedStudents.length }} student(s)
+                            <CheckCircleIcon class="w-5 h-5 inline-block mr-2" />
+                            Assign to {{ assignmentModal.selectedStudents.length }} student(s)
                         </button>
                         <button
                             @click="closeAssignmentModal"
