@@ -50,11 +50,15 @@ class VideoController extends Controller
 
         // Check access rights (students can only see assigned workouts)
         if ($user->role === 'student') {
+            // Check if it's a personal workout assigned directly to this student
+            $isPersonalWorkout = $workout->is_personal && $workout->assigned_user_id == $user->id;
+
+            // Check if it's assigned via user_assignments table
             $isAssigned = $workout->assignments()
                 ->where('user_id', $user->id)
                 ->exists();
 
-            if (!$isAssigned) {
+            if (!$isPersonalWorkout && !$isAssigned) {
                 return response()->json([
                     'message' => 'You do not have access to this video'
                 ], 403);
@@ -310,7 +314,7 @@ class VideoController extends Controller
     }
 
     /**
-     * Upload thumbnail image for a workout
+     * Upload thumbnail image for a workout or nutrition plan
      */
     public function uploadThumbnail(Request $request)
     {
@@ -323,7 +327,7 @@ class VideoController extends Controller
             ], 403);
         }
 
-        // Validate the request
+        // Validate the request - workout_id is optional now
         $validated = $request->validate([
             'thumbnail' => [
                 'required',
@@ -331,38 +335,53 @@ class VideoController extends Controller
                 'mimes:jpeg,jpg,png,webp',
                 'max:5120', // 5MB max
             ],
-            'workout_id' => 'required|exists:workouts,id',
+            'workout_id' => 'nullable|exists:workouts,id',
         ]);
 
         try {
-            $workout = Workout::find($request->workout_id);
+            // If workout_id is provided, update the workout
+            if ($request->has('workout_id')) {
+                $workout = Workout::find($request->workout_id);
 
-            // Check if admin owns this workout
-            if ($workout->admin_id !== $user->id) {
+                // Check if admin owns this workout
+                if ($workout->admin_id !== $user->id) {
+                    return response()->json([
+                        'message' => 'You can only upload thumbnails for your own workouts'
+                    ], 403);
+                }
+
+                // Delete old thumbnail if exists and is a local file
+                if ($workout->thumbnail_path && !filter_var($workout->thumbnail_path, FILTER_VALIDATE_URL)) {
+                    Storage::disk('public')->delete($workout->thumbnail_path);
+                }
+
+                // Store thumbnail
+                $file = $request->file('thumbnail');
+                $filename = 'thumbnail_' . $workout->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('images/thumbnails', $filename, 'public');
+
+                // Update workout
+                $workout->thumbnail_path = $path;
+                $workout->save();
+
                 return response()->json([
-                    'message' => 'You can only upload thumbnails for your own workouts'
-                ], 403);
+                    'message' => 'Thumbnail uploaded successfully',
+                    'workout' => $workout,
+                    'thumbnail_path' => $path,
+                    'thumbnail_url' => Storage::disk('public')->url($path),
+                ]);
+            } else {
+                // No workout_id provided, just upload the thumbnail and return the path
+                $file = $request->file('thumbnail');
+                $filename = 'thumbnail_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('images/thumbnails', $filename, 'public');
+
+                return response()->json([
+                    'message' => 'Thumbnail uploaded successfully',
+                    'thumbnail_path' => $path,
+                    'thumbnail_url' => Storage::disk('public')->url($path),
+                ]);
             }
-
-            // Delete old thumbnail if exists and is a local file
-            if ($workout->thumbnail_path && !filter_var($workout->thumbnail_path, FILTER_VALIDATE_URL)) {
-                Storage::disk('public')->delete($workout->thumbnail_path);
-            }
-
-            // Store thumbnail
-            $file = $request->file('thumbnail');
-            $filename = 'thumbnail_' . $workout->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('images/thumbnails', $filename, 'public');
-
-            // Update workout
-            $workout->thumbnail_path = $path;
-            $workout->save();
-
-            return response()->json([
-                'message' => 'Thumbnail uploaded successfully',
-                'workout' => $workout,
-                'thumbnail_url' => Storage::disk('public')->url($path),
-            ]);
 
         } catch (\Exception $e) {
             return response()->json([

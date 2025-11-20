@@ -65,6 +65,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/nutrition/assigned', [NutritionController::class, 'assigned']);
     Route::get('/nutrition/{id}', [NutritionController::class, 'show']);
     Route::post('/nutrition', [NutritionController::class, 'store']);
+    Route::put('/nutrition/{id}', [NutritionController::class, 'update']);
+    Route::delete('/nutrition/{id}', [NutritionController::class, 'destroy']);
     Route::post('/nutrition/{id}/assign', [NutritionController::class, 'assign']);
 
     // Messages / Chat

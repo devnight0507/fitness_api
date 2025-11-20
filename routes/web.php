@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\Workout;
+use App\Models\NutritionPlan;
 
 Route::get('/', function () {
     return view('welcome');
@@ -78,6 +79,29 @@ Route::get('/admin/students/{id}', function ($id) {
         'user' => null,
     ]);
 })->name('admin.students.show');
+
+// Nutrition management
+Route::get('/admin/nutrition/create', function () {
+    return Inertia::render('NutritionForm', [
+        'nutrition' => null,
+    ]);
+})->name('admin.nutrition.create');
+
+Route::get('/admin/nutrition/{id}/edit', function ($id) {
+    $nutrition = NutritionPlan::with(['meals', 'assignments'])->find($id);
+
+    if (!$nutrition) {
+        return redirect('/admin')->with('error', 'Nutrition plan not found');
+    }
+
+    // Get the first assigned student's ID (if any)
+    $studentId = $nutrition->assignments->first()?->user_id;
+
+    return Inertia::render('NutritionForm', [
+        'nutrition' => $nutrition,
+        'student_id' => $studentId,
+    ]);
+})->name('admin.nutrition.edit');
 
 // Logout route
 Route::post('/admin/logout', function () {

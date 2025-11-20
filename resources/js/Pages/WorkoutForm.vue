@@ -36,6 +36,7 @@ const form = ref({
     level: '',
     description: '',
     thumbnail_path: '',
+    video_path: '',
     youtube_url: '',
     video_file: null,
     thumbnail_file: null,
@@ -56,6 +57,7 @@ const exerciseForm = ref({
     sets: 3,
     reps: '10',
     rest: 60,
+    notes: '',
 });
 
 // Computed property to display thumbnail URL properly
@@ -75,6 +77,9 @@ const displayThumbnailUrl = computed(() => {
 onMounted(() => {
     // If editing, populate form
     if (props.workout) {
+        console.log('Loading workout for edit:', props.workout);
+        console.log('Exercises from props:', props.workout.exercises);
+
         form.value = {
             id: props.workout.id,
             title: props.workout.title,
@@ -84,6 +89,7 @@ onMounted(() => {
             level: props.workout.level,
             description: props.workout.description || '',
             thumbnail_path: props.workout.thumbnail_path || '',
+            video_path: props.workout.video_path || '',
             youtube_url: props.workout.youtube_url || '',
             video_file: null,
             thumbnail_file: null,
@@ -91,6 +97,8 @@ onMounted(() => {
             is_personal: props.workout.is_personal || false,
             assigned_user_id: props.workout.assigned_user_id || null,
         };
+
+        console.log('Form exercises after loading:', form.value.exercises);
     }
 });
 
@@ -129,6 +137,7 @@ const addExercise = () => {
         sets: exerciseForm.value.sets,
         reps: exerciseForm.value.reps,
         rest: exerciseForm.value.rest,
+        notes: exerciseForm.value.notes,
         order_index: form.value.exercises.length,
     };
 
@@ -142,6 +151,7 @@ const addExercise = () => {
         sets: 3,
         reps: '10',
         rest: 60,
+        notes: '',
     };
 };
 
@@ -187,6 +197,7 @@ const submitWorkout = async () => {
         sets: ex.sets || null,
         reps: ex.reps?.toString() || null, // reps can be string like "60 sec"
         rest: ex.rest || null,
+        notes: ex.notes || null,
         order_index: ex.order_index,
     }));
 
@@ -452,6 +463,16 @@ const goBack = () => {
                     <!-- Video Upload -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Video Upload (Local Video)</label>
+
+                        <!-- Current Video Indicator (when editing) -->
+                        <div v-if="form.id && form.video_path" class="mb-3 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-700 font-semibold">✅ Current Video:</span>
+                                <span class="text-sm text-gray-700">{{ form.video_path.split('/').pop() }}</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-2">Upload a new video below to replace the current one</p>
+                        </div>
+
                         <div
                             @click="$refs.videoInput.click()"
                             class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-purple-600 hover:bg-purple-50 transition"
@@ -486,6 +507,17 @@ const goBack = () => {
                     <!-- Thumbnail Upload/URL -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Image</label>
+
+                        <!-- Current Thumbnail Preview (when editing) -->
+                        <div v-if="form.id && displayThumbnailUrl" class="mb-3 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                            <div class="flex items-start gap-4">
+                                <img :src="displayThumbnailUrl" alt="Current thumbnail" class="w-32 h-32 object-cover rounded-lg shadow">
+                                <div class="flex-1">
+                                    <span class="text-green-700 font-semibold">✅ Current Thumbnail</span>
+                                    <p class="text-xs text-gray-600 mt-2">Upload a new image below to replace the current thumbnail</p>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Thumbnail Upload -->
                         <div
@@ -557,8 +589,8 @@ const goBack = () => {
                                     >
                                 </div>
                             </div>
-                            <div class="flex gap-4 items-end">
-                                <div class="flex-1">
+                            <div class="grid grid-cols-1 gap-4 mb-4">
+                                <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Rest (seconds) *</label>
                                     <input
                                         v-model.number="exerciseForm.rest"
@@ -567,6 +599,18 @@ const goBack = () => {
                                         class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
                                     >
                                 </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Observations / Notes</label>
+                                    <textarea
+                                        v-model="exerciseForm.notes"
+                                        rows="3"
+                                        placeholder="Add corrections, injury warnings, adaptations, or personalized instructions..."
+                                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none resize-none"
+                                    ></textarea>
+                                    <p class="text-xs text-gray-500 mt-1">Optional: Add any special instructions or notes for this exercise</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
                                 <button
                                     type="button"
                                     @click="addExercise"
@@ -584,28 +628,34 @@ const goBack = () => {
                         </div>
                         <div v-else class="space-y-3">
                             <div v-for="(exercise, index) in form.exercises" :key="index"
-                                 class="bg-white border-2 border-gray-200 rounded-lg p-4 flex items-center gap-4"
+                                 class="bg-white border-2 border-gray-200 rounded-lg p-4"
                             >
-                                <div class="flex-shrink-0 text-2xl font-bold text-purple-600">
-                                    {{ index + 1 }}
-                                </div>
-                                <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    <div class="md:col-span-2">
-                                        <p class="font-semibold text-gray-800">{{ exercise.name }}</p>
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0 text-2xl font-bold text-purple-600">
+                                        {{ index + 1 }}
                                     </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">
-                                            <span class="font-semibold">{{ exercise.sets }}</span> sets ×
-                                            <span class="font-semibold">{{ exercise.reps }}</span> reps
-                                        </p>
+                                    <div class="flex-1">
+                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
+                                            <div class="md:col-span-2">
+                                                <p class="font-semibold text-gray-800">{{ exercise.name }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">
+                                                    <span class="font-semibold">{{ exercise.sets }}</span> sets ×
+                                                    <span class="font-semibold">{{ exercise.reps }}</span> reps
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">
+                                                    Rest: <span class="font-semibold">{{ exercise.rest }}s</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div v-if="exercise.notes" class="mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700">
+                                            <span class="font-semibold text-blue-700">📝 Note:</span> {{ exercise.notes }}
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">
-                                            Rest: <span class="font-semibold">{{ exercise.rest }}s</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex-shrink-0 flex gap-2">
+                                    <div class="flex-shrink-0 flex gap-2">
                                     <button
                                         type="button"
                                         @click="moveExerciseUp(index)"
@@ -632,6 +682,7 @@ const goBack = () => {
                                     >
                                         <TrashIcon class="w-4 h-4" />
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

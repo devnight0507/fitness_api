@@ -12,6 +12,7 @@ class WorkoutExercise extends Model
         'sets',
         'reps',
         'rest',
+        'notes',
         'order_index',
     ];
 

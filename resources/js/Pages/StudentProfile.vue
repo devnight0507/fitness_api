@@ -26,6 +26,7 @@ const isSaving = ref(false);
 const isLoading = ref(true);
 const studentData = ref(null);
 const workoutsData = ref([]);
+const nutritionData = ref([]);
 
 // Personal data form
 const personalForm = ref({
@@ -53,6 +54,7 @@ onMounted(async () => {
             const data = await response.json();
             studentData.value = data.student;
             workoutsData.value = data.workouts || [];
+            nutritionData.value = data.nutrition_plans || [];
 
             // Populate form
             personalForm.value = {
@@ -133,6 +135,14 @@ const createWorkoutForStudent = () => {
 
 const editWorkout = (workoutId) => {
     router.visit(`/admin/workouts/${workoutId}/edit`);
+};
+
+const createNutritionForStudent = () => {
+    router.visit(`/admin/nutrition/create?student_id=${props.student.id}`);
+};
+
+const editNutrition = (nutritionId) => {
+    router.visit(`/admin/nutrition/${nutritionId}/edit`);
 };
 
 const getAvatarUrl = (avatarPath) => {
@@ -227,6 +237,15 @@ const getLocationLabel = (location) => {
                         ]"
                     >
                         Workouts ({{ workoutsData.length }})
+                    </button>
+                    <button
+                        @click="activeTab = 'nutrition'"
+                        :class="[
+                            'px-6 py-3 rounded-lg font-semibold transition-all',
+                            activeTab === 'nutrition' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ]"
+                    >
+                        Nutrition ({{ nutritionData.length }})
                     </button>
                 </div>
 
@@ -434,10 +453,77 @@ const getLocationLabel = (location) => {
                     </div>
                 </div>
 
-                <!-- Nutrition Tab (Placeholder) -->
+                <!-- Nutrition Tab -->
                 <div v-show="activeTab === 'nutrition'" class="p-8">
-                    <div class="bg-gray-50 rounded-xl p-12 text-center">
-                        <p class="text-gray-600 text-lg">Nutrition plans feature coming soon...</p>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Student's Nutrition Plans</h2>
+                        <button
+                            @click="createNutritionForStudent"
+                            class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition shadow-lg"
+                        >
+                            <PlusIcon class="w-5 h-5 inline-block mr-2" />
+                            Create Nutrition Plan
+                        </button>
+                    </div>
+
+                    <div v-if="nutritionData.length === 0" class="bg-gray-50 rounded-xl p-12 text-center">
+                        <p class="text-gray-600 text-lg mb-4">No nutrition plans assigned yet</p>
+                        <button
+                            @click="createNutritionForStudent"
+                            class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                        >
+                            Create First Nutrition Plan
+                        </button>
+                    </div>
+
+                    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div
+                            v-for="nutrition in nutritionData"
+                            :key="nutrition.id"
+                            class="bg-white border-2 border-gray-200 rounded-xl overflow-hidden hover:border-purple-600 transition-all hover:shadow-xl"
+                        >
+                            <img
+                                :src="getThumbnailUrl(nutrition.thumbnail_path)"
+                                :alt="nutrition.title"
+                                class="w-full h-40 object-cover"
+                            >
+                            <div class="p-4">
+                                <h3 class="text-lg font-bold text-gray-800 mb-2">{{ nutrition.title }}</h3>
+
+                                <p v-if="nutrition.description" class="text-sm text-gray-600 mb-3">
+                                    {{ nutrition.description }}
+                                </p>
+
+                                <div v-if="nutrition.calories || nutrition.protein || nutrition.carbs || nutrition.fats" class="mb-3 p-3 bg-gray-50 rounded-lg">
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div v-if="nutrition.calories">
+                                            <span class="font-semibold">Calories:</span> {{ nutrition.calories }}
+                                        </div>
+                                        <div v-if="nutrition.protein">
+                                            <span class="font-semibold">Protein:</span> {{ nutrition.protein }}g
+                                        </div>
+                                        <div v-if="nutrition.carbs">
+                                            <span class="font-semibold">Carbs:</span> {{ nutrition.carbs }}g
+                                        </div>
+                                        <div v-if="nutrition.fats">
+                                            <span class="font-semibold">Fats:</span> {{ nutrition.fats }}g
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p v-if="nutrition.meals" class="text-sm text-gray-600 mb-4">
+                                    {{ nutrition.meals.length }} meal(s)
+                                </p>
+
+                                <button
+                                    @click="editNutrition(nutrition.id)"
+                                    class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                                >
+                                    <PencilIcon class="w-4 h-4 inline-block mr-1" />
+                                    Edit Nutrition Plan
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

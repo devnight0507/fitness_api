@@ -128,6 +128,7 @@ class WorkoutController extends Controller
             'exercises.*.sets' => 'nullable|integer',
             'exercises.*.reps' => 'nullable|string',
             'exercises.*.rest' => 'nullable|integer',
+            'exercises.*.notes' => 'nullable|string',
             'exercises.*.order_index' => 'nullable|integer',
             'is_personal' => 'nullable|boolean',
             'assigned_user_id' => 'nullable|exists:users,id',
@@ -160,6 +161,7 @@ class WorkoutController extends Controller
                     'sets' => $exercise['sets'] ?? null,
                     'reps' => $exercise['reps'] ?? null,
                     'rest' => $exercise['rest'] ?? null,
+                    'notes' => $exercise['notes'] ?? null,
                     'order_index' => $exercise['order_index'] ?? $index,
                 ];
 
@@ -220,6 +222,7 @@ class WorkoutController extends Controller
             'exercises.*.sets' => 'nullable|integer',
             'exercises.*.reps' => 'nullable|string',
             'exercises.*.rest' => 'nullable|integer',
+            'exercises.*.notes' => 'nullable|string',
             'exercises.*.order_index' => 'nullable|integer',
             'is_personal' => 'nullable|boolean',
             'assigned_user_id' => 'nullable|exists:users,id',
@@ -252,6 +255,7 @@ class WorkoutController extends Controller
                     'sets' => $exercise['sets'] ?? null,
                     'reps' => $exercise['reps'] ?? null,
                     'rest' => $exercise['rest'] ?? null,
+                    'notes' => $exercise['notes'] ?? null,
                     'order_index' => $exercise['order_index'] ?? $index,
                 ]);
             }

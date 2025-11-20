@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Workout;
+use App\Models\NutritionPlan;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -72,9 +73,17 @@ class StudentController extends Controller
         ->with('exercises')
         ->get();
 
+        // Get student's nutrition plans
+        $nutritionPlans = NutritionPlan::whereHas('assignments', function($q) use ($id) {
+            $q->where('user_id', $id);
+        })
+        ->with('meals')
+        ->get();
+
         return response()->json([
             'student' => $student,
             'workouts' => $workouts,
+            'nutrition_plans' => $nutritionPlans,
         ]);
     }
 

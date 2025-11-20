@@ -142,6 +142,103 @@ class NutritionController extends Controller
     }
 
     /**
+     * Update an existing nutrition plan (admin only)
+     */
+    public function update(Request $request, $id)
+    {
+        $user = $request->user();
+
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can update nutrition plans'
+            ], 403);
+        }
+
+        $plan = NutritionPlan::find($id);
+
+        if (!$plan) {
+            return response()->json([
+                'message' => 'Nutrition plan not found'
+            ], 404);
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'calories' => 'required|integer',
+            'protein' => 'required|integer',
+            'carbs' => 'required|integer',
+            'fats' => 'required|integer',
+            'thumbnail_path' => 'nullable|string',
+            'meals' => 'nullable|array',
+            'meals.*.type' => 'required|in:Breakfast,Lunch,Dinner,Snack',
+            'meals.*.time' => 'nullable|string',
+            'meals.*.name' => 'required|string',
+            'meals.*.calories' => 'required|integer',
+            'meals.*.ingredients' => 'nullable|array',
+            'meals.*.instructions' => 'nullable|string',
+        ]);
+
+        $plan->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'calories' => $request->calories,
+            'protein' => $request->protein,
+            'carbs' => $request->carbs,
+            'fats' => $request->fats,
+            'thumbnail_path' => $request->thumbnail_path,
+        ]);
+
+        // Delete existing meals and recreate
+        $plan->meals()->delete();
+
+        // Create meals if provided
+        if ($request->has('meals')) {
+            foreach ($request->meals as $index => $mealData) {
+                $plan->meals()->create([
+                    'type' => $mealData['type'],
+                    'time' => $mealData['time'] ?? null,
+                    'name' => $mealData['name'],
+                    'calories' => $mealData['calories'],
+                    'ingredients' => $mealData['ingredients'] ?? null,
+                    'instructions' => $mealData['instructions'] ?? null,
+                    'order_index' => $index,
+                ]);
+            }
+        }
+
+        return response()->json($plan->load('meals'));
+    }
+
+    /**
+     * Delete a nutrition plan (admin only)
+     */
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can delete nutrition plans'
+            ], 403);
+        }
+
+        $plan = NutritionPlan::find($id);
+
+        if (!$plan) {
+            return response()->json([
+                'message' => 'Nutrition plan not found'
+            ], 404);
+        }
+
+        $plan->delete();
+
+        return response()->json([
+            'message' => 'Nutrition plan deleted successfully'
+        ]);
+    }
+
+    /**
      * Assign nutrition plan to student(s) (admin only)
      */
     public function assign(Request $request, $id)
