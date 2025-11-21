@@ -238,29 +238,30 @@ const getThumbnailUrl = (thumbnailPath) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-5">
+    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-3 sm:p-5">
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
-            <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <FireIcon class="w-10 h-10 text-purple-600" />
+            <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+                <div class="flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <FireIcon class="w-8 h-8 sm:w-10 sm:h-10 text-purple-600 flex-shrink-0" />
                         <div>
-                            <h1 class="text-4xl font-bold text-gray-800">Workouts Management</h1>
-                            <p class="text-gray-600">Create and manage workout classes for all students</p>
+                            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Workouts Management</h1>
+                            <p class="text-sm sm:text-base text-gray-600 hidden sm:block">Create and manage workout classes for all students</p>
                         </div>
                     </div>
-                    <div class="flex gap-3">
+                    <div class="flex gap-2 sm:gap-3">
                         <button
                             @click="goToAdmin"
-                            class="px-6 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition"
+                            class="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 bg-gray-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-700 transition"
                         >
-                            <ArrowLeftIcon class="w-5 h-5 inline-block mr-2" />
-                            Back to Dashboard
+                            <ArrowLeftIcon class="w-4 h-4 sm:w-5 sm:h-5 inline-block sm:mr-2" />
+                            <span class="hidden sm:inline">Back to Dashboard</span>
+                            <span class="sm:hidden">Back</span>
                         </button>
                         <button
                             @click="logout"
-                            class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-all hover:-translate-y-0.5 shadow-lg"
+                            class="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 bg-red-500 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-red-600 transition-all hover:-translate-y-0.5 shadow-lg"
                         >
                             Logout
                         </button>
@@ -269,77 +270,77 @@ const getThumbnailUrl = (thumbnailPath) => {
             </div>
 
             <!-- Workouts Section Header -->
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-white">All Workouts (Classes)</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-4 sm:mb-6">
+                <h2 class="text-xl sm:text-2xl font-bold text-white">All Workouts (Classes)</h2>
                 <button
                     @click="createWorkout"
-                    class="px-6 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl"
+                    class="px-4 sm:px-6 py-2 sm:py-3 bg-white text-purple-600 rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl"
                 >
-                    <PlusIcon class="w-5 h-5 inline-block mr-2" />
+                    <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-2" />
                     Create New Workout
                 </button>
             </div>
 
             <!-- Workout List -->
             <div>
-                <div v-if="isLoading" class="bg-white rounded-2xl shadow-xl p-8">
+                <div v-if="isLoading" class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
                     <p class="text-center text-gray-600">Loading workouts...</p>
                 </div>
-                <div v-else-if="workoutsList.length === 0" class="bg-white rounded-2xl shadow-xl p-8">
+                <div v-else-if="workoutsList.length === 0" class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
                     <p class="text-center text-gray-600">No workouts yet. Create your first one!</p>
                 </div>
-                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <div v-for="workout in workoutsList" :key="workout.id"
                          class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1"
                     >
                         <img
                             :src="getThumbnailUrl(workout.thumbnail_path)"
                             :alt="workout.title"
-                            class="w-full h-48 object-cover"
+                            class="w-full h-40 sm:h-48 object-cover"
                         >
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold text-gray-800 mb-3">{{ workout.title }}</h3>
-                            <div class="flex gap-4 mb-4 text-sm text-gray-600">
+                        <div class="p-4 sm:p-6">
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">{{ workout.title }}</h3>
+                            <div class="flex flex-wrap gap-2 sm:gap-4 mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
                                 <span class="flex items-center gap-1">
-                                    <component :is="workout.location === 'home' ? HomeIcon : BuildingOffice2Icon" class="w-4 h-4" />
+                                    <component :is="workout.location === 'home' ? HomeIcon : BuildingOffice2Icon" class="w-3 h-3 sm:w-4 sm:h-4" />
                                     {{ workout.location === 'home' ? 'Home' : 'Gym' }}
                                 </span>
                                 <span class="flex items-center gap-1">
-                                    <ClockIcon class="w-4 h-4" />
+                                    <ClockIcon class="w-3 h-3 sm:w-4 sm:h-4" />
                                     {{ workout.duration }}
                                 </span>
                                 <span>{{ workout.level }}</span>
                                 <span class="flex items-center gap-1">
-                                    <FolderIcon class="w-4 h-4" />
+                                    <FolderIcon class="w-3 h-3 sm:w-4 sm:h-4" />
                                     {{ workout.category }}
                                 </span>
                             </div>
-                            <p class="text-gray-600 text-sm mb-4">{{ workout.description || 'No description' }}</p>
-                            <p class="text-sm mb-4 text-blue-600">
-                                <FireIcon class="w-4 h-4 inline-block mr-1" />
+                            <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">{{ workout.description || 'No description' }}</p>
+                            <p class="text-xs sm:text-sm mb-3 sm:mb-4 text-blue-600">
+                                <FireIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" />
                                 {{ workout.exercise_count || 0 }} exercises
                             </p>
                             <div class="flex gap-2 mb-2">
                                 <button
                                     @click="editWorkout(workout.id)"
-                                    class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                                    class="flex-1 px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-purple-700 transition"
                                 >
-                                    <PencilIcon class="w-4 h-4 inline-block mr-1" />
+                                    <PencilIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" />
                                     Edit
                                 </button>
                                 <button
                                     @click="deleteWorkout(workout.id)"
-                                    class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition"
+                                    class="flex-1 px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-red-600 transition"
                                 >
-                                    <TrashIcon class="w-4 h-4 inline-block mr-1" />
+                                    <TrashIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" />
                                     Delete
                                 </button>
                             </div>
                             <button
                                 @click="openAssignmentModal(workout)"
-                                class="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition"
+                                class="w-full px-3 sm:px-4 py-2 bg-green-500 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-green-600 transition"
                             >
-                                <UsersIcon class="w-4 h-4 inline-block mr-1" />
+                                <UsersIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" />
                                 Assign to Students
                             </button>
                         </div>
@@ -352,71 +353,71 @@ const getThumbnailUrl = (thumbnailPath) => {
                  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
                  @click.self="closeAssignmentModal"
             >
-                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <UsersIcon class="w-6 h-6" />
+                <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[85vh] sm:max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                        <UsersIcon class="w-5 h-5 sm:w-6 sm:h-6" />
                         Assign Workout to Students
                     </h3>
-                    <div class="mb-6">
-                        <p class="text-gray-600">
+                    <div class="mb-4 sm:mb-6">
+                        <p class="text-sm sm:text-base text-gray-600">
                             Workout: <span class="font-semibold">{{ assignmentModal.workoutTitle }}</span>
                         </p>
-                        <p v-if="assignmentModal.initiallyAssigned.length > 0" class="text-sm text-green-600 mt-1">
+                        <p v-if="assignmentModal.initiallyAssigned.length > 0" class="text-xs sm:text-sm text-green-600 mt-1">
                             Currently assigned to {{ assignmentModal.initiallyAssigned.length }} student(s)
                         </p>
-                        <p v-else class="text-sm text-gray-500 mt-1">
+                        <p v-else class="text-xs sm:text-sm text-gray-500 mt-1">
                             Not assigned to any students yet
                         </p>
                     </div>
 
                     <!-- Students List -->
-                    <div class="space-y-3 mb-6">
+                    <div class="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                         <div v-for="student in studentsList" :key="student.id"
-                             class="border-2 rounded-lg p-4 cursor-pointer transition"
+                             class="border-2 rounded-lg p-3 sm:p-4 cursor-pointer transition"
                              :class="assignmentModal.selectedStudents.includes(student.id)
                                  ? 'border-purple-600 bg-purple-50'
                                  : 'border-gray-200 hover:border-purple-300'"
                              @click="toggleStudentSelection(student.id)"
                         >
-                            <div class="flex items-center gap-3">
-                                <div class="flex-shrink-0 w-6 h-6 border-2 rounded flex items-center justify-center"
+                            <div class="flex items-center gap-2 sm:gap-3">
+                                <div class="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 border-2 rounded flex items-center justify-center"
                                      :class="assignmentModal.selectedStudents.includes(student.id)
                                          ? 'border-purple-600 bg-purple-600'
                                          : 'border-gray-300'"
                                 >
-                                    <CheckCircleIcon v-if="assignmentModal.selectedStudents.includes(student.id)" class="w-4 h-4 text-white" />
+                                    <CheckCircleIcon v-if="assignmentModal.selectedStudents.includes(student.id)" class="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                                 </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <p class="font-semibold text-gray-800">{{ student.name }}</p>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                        <p class="font-semibold text-sm sm:text-base text-gray-800 truncate">{{ student.name }}</p>
                                         <span v-if="assignmentModal.initiallyAssigned.includes(student.id)"
-                                              class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-semibold"
+                                              class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-semibold self-start sm:self-auto whitespace-nowrap"
                                         >
                                             Already Assigned
                                         </span>
                                     </div>
-                                    <p class="text-sm text-gray-500">{{ student.email }}</p>
+                                    <p class="text-xs sm:text-sm text-gray-500 truncate">{{ student.email }}</p>
                                 </div>
                             </div>
                         </div>
-                        <div v-if="studentsList.length === 0" class="text-center text-gray-500 py-8">
+                        <div v-if="studentsList.length === 0" class="text-center text-gray-500 py-6 sm:py-8 text-sm sm:text-base">
                             No students found. Please add students first.
                         </div>
                     </div>
 
                     <!-- Modal Actions -->
-                    <div class="flex gap-4">
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
                         <button
                             @click="assignWorkoutToStudents"
-                            class="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                            class="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-purple-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition disabled:opacity-50"
                             :disabled="assignmentModal.selectedStudents.length === 0"
                         >
-                            <CheckCircleIcon class="w-5 h-5 inline-block mr-2" />
+                            <CheckCircleIcon class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-2" />
                             Assign to {{ assignmentModal.selectedStudents.length }} student(s)
                         </button>
                         <button
                             @click="closeAssignmentModal"
-                            class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition"
+                            class="px-4 sm:px-6 py-2 sm:py-3 bg-gray-500 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-600 transition"
                         >
                             Cancel
                         </button>

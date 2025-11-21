@@ -340,31 +340,31 @@ const goBack = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-5">
+    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-3 sm:p-5">
         <div class="max-w-5xl mx-auto">
             <!-- Header -->
-            <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
-                <div class="flex justify-between items-center">
+            <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+                <div class="flex flex-col gap-4">
                     <div>
-                        <h1 class="text-4xl font-bold text-gray-800 mb-2">{{ pageTitle }}</h1>
-                        <p class="text-gray-600">Fill in the details below to {{ form.id ? 'update' : 'create' }} a workout</p>
-                        <div v-if="studentId || form.is_personal" class="mt-3 inline-block px-4 py-2 bg-blue-100 text-blue-800 rounded-lg font-semibold text-sm">
-                            <UsersIcon class="w-4 h-4 inline-block mr-2" />
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">{{ pageTitle }}</h1>
+                        <p class="text-sm sm:text-base text-gray-600">Fill in the details below to {{ form.id ? 'update' : 'create' }} a workout</p>
+                        <div v-if="studentId || form.is_personal" class="mt-3 inline-block px-3 sm:px-4 py-2 bg-blue-100 text-blue-800 rounded-lg font-semibold text-xs sm:text-sm">
+                            <UsersIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-2" />
                             Personal Workout - Will be assigned only to this student
                         </div>
                     </div>
                     <button
                         @click="goBack"
-                        class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition-all hover:-translate-y-0.5 shadow-lg"
+                        class="self-start px-4 sm:px-6 py-2 sm:py-3 bg-gray-500 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-600 transition-all hover:-translate-y-0.5 shadow-lg"
                     >
-                        <ArrowUturnLeftIcon class="w-5 h-5 inline-block mr-2" />
+                        <ArrowUturnLeftIcon class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-2" />
                         Back
                     </button>
                 </div>
             </div>
 
             <!-- Workout Form -->
-            <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
                 <form @submit.prevent="submitWorkout" class="space-y-6">
                     <!-- Title -->
                     <div>
@@ -490,16 +490,16 @@ const goBack = () => {
                     </div>
 
                     <!-- Exercise Builder Section -->
-                    <div class="border-t-2 border-gray-200 pt-6">
-                        <div class="flex items-center gap-3 mb-4">
-                            <FireIcon class="w-8 h-8 text-purple-600" />
-                            <h3 class="text-2xl font-bold text-gray-800">Workout Exercises</h3>
+                    <div class="border-t-2 border-gray-200 pt-4 sm:pt-6">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <FireIcon class="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
+                            <h3 class="text-xl sm:text-2xl font-bold text-gray-800">Workout Exercises</h3>
                         </div>
-                        <p class="text-sm text-gray-600 mb-4">Build your personalized workout by adding exercises with sets, reps, and rest times.</p>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">Build your personalized workout by adding exercises with sets, reps, and rest times.</p>
 
                         <!-- Add Exercise Form -->
-                        <div class="bg-gray-50 p-6 rounded-lg mb-6">
-                            <h4 class="font-semibold text-gray-700 mb-4">Add New Exercise</h4>
+                        <div class="bg-gray-50 p-4 sm:p-6 rounded-lg mb-4 sm:mb-6">
+                            <h4 class="font-semibold text-sm sm:text-base text-gray-700 mb-3 sm:mb-4">Add New Exercise</h4>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Exercise Name *</label>
@@ -591,79 +591,85 @@ const goBack = () => {
                                 <button
                                     type="button"
                                     @click="addExercise"
-                                    class="px-6 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition"
+                                    class="w-full sm:w-auto px-4 sm:px-6 py-2 bg-green-500 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-green-600 transition"
                                 >
-                                    <PlusIcon class="w-5 h-5 inline-block mr-2" />
+                                    <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-2" />
                                     Add Exercise
                                 </button>
                             </div>
                         </div>
 
                         <!-- Exercise List -->
-                        <div v-if="form.exercises.length === 0" class="text-center text-gray-500 py-8 bg-gray-50 rounded-lg">
+                        <div v-if="form.exercises.length === 0" class="text-center text-gray-500 py-6 sm:py-8 bg-gray-50 rounded-lg text-sm sm:text-base">
                             No exercises added yet. Add your first exercise above!
                         </div>
                         <div v-else class="space-y-3">
                             <div v-for="(exercise, index) in form.exercises" :key="index"
-                                 class="bg-white border-2 border-gray-200 rounded-lg p-4"
+                                 class="bg-white border-2 border-gray-200 rounded-lg p-3 sm:p-4"
                             >
-                                <div class="flex items-start gap-4">
-                                    <div class="flex-shrink-0 text-2xl font-bold text-purple-600">
-                                        {{ index + 1 }}
+                                <div class="flex flex-col gap-3">
+                                    <!-- Exercise Header with Number and Actions -->
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2 sm:gap-3">
+                                            <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-600 text-white flex items-center justify-center text-base sm:text-xl font-bold">
+                                                {{ index + 1 }}
+                                            </div>
+                                            <p class="font-semibold text-sm sm:text-base text-gray-800">{{ exercise.name }}</p>
+                                        </div>
+                                        <!-- Action Buttons -->
+                                        <div class="flex-shrink-0 flex gap-1 sm:gap-2">
+                                            <button
+                                                type="button"
+                                                @click="moveExerciseUp(index)"
+                                                :disabled="index === 0"
+                                                class="p-1.5 sm:p-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition disabled:opacity-50"
+                                                title="Move up"
+                                            >
+                                                <ArrowUpIcon class="w-3 h-3 sm:w-4 sm:h-4" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                @click="moveExerciseDown(index)"
+                                                :disabled="index === form.exercises.length - 1"
+                                                class="p-1.5 sm:p-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition disabled:opacity-50"
+                                                title="Move down"
+                                            >
+                                                <ArrowDownIcon class="w-3 h-3 sm:w-4 sm:h-4" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                @click="removeExercise(index)"
+                                                class="p-1.5 sm:p-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                                                title="Remove"
+                                            >
+                                                <TrashIcon class="w-3 h-3 sm:w-4 sm:h-4" />
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="flex-1">
-                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
-                                            <div class="md:col-span-2">
-                                                <p class="font-semibold text-gray-800">{{ exercise.name }}</p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm text-gray-600">
-                                                    <span class="font-semibold">{{ exercise.sets }}</span> sets ×
-                                                    <span class="font-semibold">{{ exercise.reps }}</span> reps
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm text-gray-600">
-                                                    Rest: <span class="font-semibold">{{ exercise.rest }}s</span>
-                                                </p>
-                                            </div>
+
+                                    <!-- Exercise Details -->
+                                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
+                                        <div class="flex items-center gap-1">
+                                            <span class="font-semibold">{{ exercise.sets }}</span> sets
                                         </div>
-                                        <div v-if="exercise.notes" class="mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700">
-                                            <span class="font-semibold text-blue-700">📝 Note:</span> {{ exercise.notes }}
+                                        <div class="flex items-center gap-1">
+                                            <span class="font-semibold">{{ exercise.reps }}</span> reps
                                         </div>
-                                        <div v-if="exercise.video_path || exercise.youtube_url" class="mt-2 p-2 bg-green-50 rounded text-sm text-gray-700">
-                                            <span class="font-semibold text-green-700">📹 Video:</span>
-                                            <span v-if="exercise.youtube_url"> YouTube</span>
-                                            <span v-else-if="exercise.video_path"> Uploaded</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="font-semibold">{{ exercise.rest }}s</span> rest
                                         </div>
                                     </div>
-                                    <div class="flex-shrink-0 flex gap-2">
-                                    <button
-                                        type="button"
-                                        @click="moveExerciseUp(index)"
-                                        :disabled="index === 0"
-                                        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition disabled:opacity-50"
-                                        title="Move up"
-                                    >
-                                        <ArrowUpIcon class="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        @click="moveExerciseDown(index)"
-                                        :disabled="index === form.exercises.length - 1"
-                                        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition disabled:opacity-50"
-                                        title="Move down"
-                                    >
-                                        <ArrowDownIcon class="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        @click="removeExercise(index)"
-                                        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                                        title="Remove"
-                                    >
-                                        <TrashIcon class="w-4 h-4" />
-                                    </button>
+
+                                    <!-- Notes -->
+                                    <div v-if="exercise.notes" class="p-2 sm:p-3 bg-blue-50 rounded text-xs sm:text-sm text-gray-700">
+                                        <span class="font-semibold text-blue-700">📝 Note:</span> {{ exercise.notes }}
+                                    </div>
+
+                                    <!-- Video -->
+                                    <div v-if="exercise.video_path || exercise.youtube_url" class="p-2 sm:p-3 bg-green-50 rounded text-xs sm:text-sm text-gray-700">
+                                        <span class="font-semibold text-green-700">📹 Video:</span>
+                                        <span v-if="exercise.youtube_url"> YouTube</span>
+                                        <span v-else-if="exercise.video_path"> Uploaded</span>
                                     </div>
                                 </div>
                             </div>
@@ -671,11 +677,11 @@ const goBack = () => {
                     </div>
 
                     <!-- Submit Buttons -->
-                    <div class="flex gap-4 pt-6">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
                         <button
                             type="submit"
                             :disabled="isSaving"
-                            class="flex-1 px-8 py-4 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all hover:-translate-y-0.5 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="flex-1 px-6 sm:px-8 py-3 sm:py-4 bg-purple-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition-all hover:-translate-y-0.5 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <span v-if="!isSaving">{{ form.id ? 'Update' : 'Create' }} Workout</span>
                             <span v-else>Saving...</span>
@@ -683,7 +689,7 @@ const goBack = () => {
                         <button
                             type="button"
                             @click="goBack"
-                            class="px-8 py-4 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition-all"
+                            class="px-6 sm:px-8 py-3 sm:py-4 bg-gray-500 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-600 transition-all"
                         >
                             Cancel
                         </button>

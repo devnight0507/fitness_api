@@ -277,30 +277,30 @@ const displayThumbnailUrl = computed(() => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-5">
+    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-3 sm:p-5">
         <div class="max-w-5xl mx-auto">
-            <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
                 <!-- Header -->
-                <div class="mb-8">
+                <div class="mb-6 sm:mb-8">
                     <button
                         @click="goBack"
-                        class="mb-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                        class="mb-3 sm:mb-4 px-3 sm:px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm sm:text-base hover:bg-gray-300 transition"
                     >
-                        <ArrowLeftIcon class="w-4 h-4 inline-block mr-2" />
+                        <ArrowLeftIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-2" />
                         Back
                     </button>
 
-                    <h1 class="text-4xl font-bold text-gray-800">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
                         {{ form.id ? 'Edit Nutrition Plan' : 'Create Nutrition Plan' }}
                     </h1>
-                    <p v-if="studentId" class="text-gray-600 mt-2">
+                    <p v-if="studentId" class="text-sm sm:text-base text-gray-600 mt-2">
                         Creating for specific student
                     </p>
                 </div>
 
                 <!-- Basic Information -->
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Basic Information</h2>
+                <div class="mb-6 sm:mb-8">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">Basic Information</h2>
 
                     <div class="grid grid-cols-1 gap-6">
                         <!-- Title -->
@@ -401,12 +401,12 @@ const displayThumbnailUrl = computed(() => {
                 </div>
 
                 <!-- Meals Section -->
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Meals</h2>
+                <div class="mb-6 sm:mb-8">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">Meals</h2>
 
                     <!-- Add Meal Form -->
-                    <div class="bg-purple-50 rounded-xl p-6 mb-6">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">Add Meal</h3>
+                    <div class="bg-purple-50 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+                        <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Add Meal</h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
@@ -477,39 +477,39 @@ const displayThumbnailUrl = computed(() => {
 
                         <button
                             @click="addMeal"
-                            class="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                            class="w-full px-4 sm:px-6 py-2 sm:py-3 bg-purple-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition"
                         >
-                            <PlusIcon class="w-5 h-5 inline-block mr-2" />
+                            <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-2" />
                             Add Meal to Plan
                         </button>
                     </div>
 
                     <!-- Meals List -->
-                    <div v-if="form.meals.length > 0" class="space-y-4">
-                        <h3 class="text-lg font-bold text-gray-800">Meals in this Plan ({{ form.meals.length }})</h3>
+                    <div v-if="form.meals.length > 0" class="space-y-3 sm:space-y-4">
+                        <h3 class="text-base sm:text-lg font-bold text-gray-800">Meals in this Plan ({{ form.meals.length }})</h3>
 
                         <div
                             v-for="(meal, index) in form.meals"
                             :key="index"
-                            class="bg-white border-2 border-gray-200 rounded-xl p-4"
+                            class="bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-4"
                         >
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex items-center gap-3">
-                                    <span class="px-3 py-1 bg-purple-100 text-purple-700 font-semibold rounded-lg text-sm">
+                            <div class="flex justify-between items-start gap-2 mb-2">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                                    <span class="px-2 sm:px-3 py-1 bg-purple-100 text-purple-700 font-semibold rounded-lg text-xs sm:text-sm">
                                         {{ meal.type }}
                                     </span>
-                                    <span class="text-sm text-gray-600">{{ meal.time }}</span>
+                                    <span class="text-xs sm:text-sm text-gray-600">{{ meal.time }}</span>
                                 </div>
                                 <button
                                     @click="removeMeal(index)"
-                                    class="text-red-600 hover:text-red-800 transition"
+                                    class="text-red-600 hover:text-red-800 transition flex-shrink-0"
                                 >
-                                    <TrashIcon class="w-5 h-5" />
+                                    <TrashIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                                 </button>
                             </div>
 
-                            <h4 class="text-lg font-bold text-gray-800 mb-2">{{ meal.name }}</h4>
-                            <p class="text-sm text-gray-600 mb-2">{{ meal.calories }} calories</p>
+                            <h4 class="text-base sm:text-lg font-bold text-gray-800 mb-2">{{ meal.name }}</h4>
+                            <p class="text-xs sm:text-sm text-gray-600 mb-2">{{ meal.calories }} calories</p>
 
                             <div v-if="meal.ingredients && meal.ingredients.length > 0" class="mb-2">
                                 <p class="text-sm font-semibold text-gray-700 mb-1">Ingredients:</p>
@@ -526,23 +526,23 @@ const displayThumbnailUrl = computed(() => {
                         </div>
                     </div>
 
-                    <div v-else class="bg-gray-50 rounded-xl p-8 text-center">
-                        <p class="text-gray-600">No meals added yet. Add your first meal above.</p>
+                    <div v-else class="bg-gray-50 rounded-xl p-6 sm:p-8 text-center">
+                        <p class="text-sm sm:text-base text-gray-600">No meals added yet. Add your first meal above.</p>
                     </div>
                 </div>
 
                 <!-- Save Button -->
-                <div class="flex gap-4">
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <button
                         @click="goBack"
-                        class="flex-1 px-6 py-4 bg-gray-300 text-gray-700 rounded-xl font-bold text-lg hover:bg-gray-400 transition"
+                        class="flex-1 px-4 sm:px-6 py-3 sm:py-4 bg-gray-300 text-gray-700 rounded-xl font-bold text-base sm:text-lg hover:bg-gray-400 transition"
                     >
                         Cancel
                     </button>
                     <button
                         @click="savePlan"
                         :disabled="isLoading"
-                        class="flex-1 px-6 py-4 bg-purple-600 text-white rounded-xl font-bold text-lg hover:bg-purple-700 transition disabled:opacity-50"
+                        class="flex-1 px-4 sm:px-6 py-3 sm:py-4 bg-purple-600 text-white rounded-xl font-bold text-base sm:text-lg hover:bg-purple-700 transition disabled:opacity-50"
                     >
                         {{ isLoading ? 'Saving...' : (form.id ? 'Update Plan' : 'Create Plan') }}
                     </button>

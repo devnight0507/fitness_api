@@ -188,42 +188,42 @@ const getLocationLabel = (location) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-5">
+    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-3 sm:p-5">
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
-            <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
+            <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
                 <button
                     @click="goBack"
-                    class="mb-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                    class="mb-3 sm:mb-4 px-3 sm:px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm sm:text-base hover:bg-gray-300 transition"
                 >
-                    <ArrowLeftIcon class="w-4 h-4 inline-block mr-2" />
+                    <ArrowLeftIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-2" />
                     Back to Students
                 </button>
 
-                <div class="flex items-center gap-6">
-                    <div v-if="studentData && !getAvatarUrl(studentData.avatar_path)" class="w-24 h-24 rounded-full border-4 border-purple-600 bg-teal-500 flex items-center justify-center">
-                        <span class="text-white text-4xl font-bold">{{ getInitial(studentData.name) }}</span>
+                <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                    <div v-if="studentData && !getAvatarUrl(studentData.avatar_path)" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-purple-600 bg-teal-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-white text-3xl sm:text-4xl font-bold">{{ getInitial(studentData.name) }}</span>
                     </div>
                     <img
                         v-else-if="studentData && getAvatarUrl(studentData.avatar_path)"
                         :src="getAvatarUrl(studentData.avatar_path)"
                         :alt="studentData.name"
-                        class="w-24 h-24 rounded-full border-4 border-purple-600 object-cover"
+                        class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-purple-600 object-cover flex-shrink-0"
                     >
-                    <div class="flex-1">
-                        <h1 class="text-4xl font-bold text-gray-800">{{ studentData?.name || student.name }}</h1>
-                        <p class="text-gray-600 mt-1">{{ studentData?.email || student.email }}</p>
+                    <div class="flex-1 text-center sm:text-left">
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">{{ studentData?.name || student.name }}</h1>
+                        <p class="text-sm sm:text-base text-gray-600 mt-1">{{ studentData?.email || student.email }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Tabs -->
-            <div class="bg-white rounded-2xl shadow-xl mb-6">
-                <div class="flex gap-2 p-4 border-b border-gray-200">
+            <div class="bg-white rounded-2xl shadow-xl mb-4 sm:mb-6">
+                <div class="flex flex-col sm:flex-row gap-2 p-3 sm:p-4 border-b border-gray-200 overflow-x-auto">
                     <button
                         @click="activeTab = 'personal'"
                         :class="[
-                            'px-6 py-3 rounded-lg font-semibold transition-all',
+                            'px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base whitespace-nowrap',
                             activeTab === 'personal' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         ]"
                     >
@@ -232,7 +232,7 @@ const getLocationLabel = (location) => {
                     <button
                         @click="activeTab = 'workouts'"
                         :class="[
-                            'px-6 py-3 rounded-lg font-semibold transition-all',
+                            'px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base whitespace-nowrap',
                             activeTab === 'workouts' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         ]"
                     >
@@ -241,7 +241,7 @@ const getLocationLabel = (location) => {
                     <button
                         @click="activeTab = 'nutrition'"
                         :class="[
-                            'px-6 py-3 rounded-lg font-semibold transition-all',
+                            'px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base whitespace-nowrap',
                             activeTab === 'nutrition' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         ]"
                     >
@@ -250,29 +250,29 @@ const getLocationLabel = (location) => {
                 </div>
 
                 <!-- Personal Data Tab -->
-                <div v-show="activeTab === 'personal'" class="p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Personal Information</h2>
+                <div v-show="activeTab === 'personal'" class="p-4 sm:p-6 md:p-8">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Personal Information</h2>
                         <button
                             v-if="!isEditing"
                             @click="isEditing = true"
-                            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                            class="px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg text-sm sm:text-base hover:bg-purple-700 transition"
                         >
-                            <PencilIcon class="w-4 h-4 inline-block mr-1" />
+                            <PencilIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" />
                             Edit
                         </button>
-                        <div v-else class="flex gap-2">
+                        <div v-else class="flex gap-2 w-full sm:w-auto">
                             <button
                                 @click="savePersonalData"
                                 :disabled="isSaving"
-                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+                                class="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg text-sm sm:text-base hover:bg-green-700 transition disabled:opacity-50"
                             >
                                 {{ isSaving ? 'Saving...' : '💾 Save' }}
                             </button>
                             <button
                                 @click="cancelEdit"
                                 :disabled="isSaving"
-                                class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition disabled:opacity-50"
+                                class="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gray-500 text-white rounded-lg text-sm sm:text-base hover:bg-gray-600 transition disabled:opacity-50"
                             >
                                 Cancel
                             </button>
@@ -379,23 +379,23 @@ const getLocationLabel = (location) => {
                 </div>
 
                 <!-- Workouts Tab -->
-                <div v-show="activeTab === 'workouts'" class="p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Student's Workouts</h2>
+                <div v-show="activeTab === 'workouts'" class="p-4 sm:p-6 md:p-8">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Student's Workouts</h2>
                         <button
                             @click="createWorkoutForStudent"
-                            class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition shadow-lg"
+                            class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-purple-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition shadow-lg"
                         >
-                            <PlusIcon class="w-5 h-5 inline-block mr-2" />
+                            <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-2" />
                             Create New Workout
                         </button>
                     </div>
 
-                    <div v-if="workoutsData.length === 0" class="bg-gray-50 rounded-xl p-12 text-center">
-                        <p class="text-gray-600 text-lg mb-4">No workouts assigned yet</p>
+                    <div v-if="workoutsData.length === 0" class="bg-gray-50 rounded-xl p-8 sm:p-12 text-center">
+                        <p class="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4">No workouts assigned yet</p>
                         <button
                             @click="createWorkoutForStudent"
-                            class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                            class="px-4 sm:px-6 py-2 sm:py-3 bg-purple-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition"
                         >
                             Create First Workout
                         </button>
@@ -454,23 +454,23 @@ const getLocationLabel = (location) => {
                 </div>
 
                 <!-- Nutrition Tab -->
-                <div v-show="activeTab === 'nutrition'" class="p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Student's Nutrition Plans</h2>
+                <div v-show="activeTab === 'nutrition'" class="p-4 sm:p-6 md:p-8">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Student's Nutrition Plans</h2>
                         <button
                             @click="createNutritionForStudent"
-                            class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition shadow-lg"
+                            class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-purple-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition shadow-lg"
                         >
-                            <PlusIcon class="w-5 h-5 inline-block mr-2" />
+                            <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-2" />
                             Create Nutrition Plan
                         </button>
                     </div>
 
-                    <div v-if="nutritionData.length === 0" class="bg-gray-50 rounded-xl p-12 text-center">
-                        <p class="text-gray-600 text-lg mb-4">No nutrition plans assigned yet</p>
+                    <div v-if="nutritionData.length === 0" class="bg-gray-50 rounded-xl p-8 sm:p-12 text-center">
+                        <p class="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4">No nutrition plans assigned yet</p>
                         <button
                             @click="createNutritionForStudent"
-                            class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                            class="px-4 sm:px-6 py-2 sm:py-3 bg-purple-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition"
                         >
                             Create First Nutrition Plan
                         </button>

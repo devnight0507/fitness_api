@@ -94,21 +94,21 @@ const logout = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-5">
+    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-3 sm:p-5">
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
-            <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <FireIcon class="w-12 h-12 text-purple-600" />
+            <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+                <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <FireIcon class="w-10 h-10 sm:w-12 sm:h-12 text-purple-600 flex-shrink-0" />
                         <div>
-                            <h1 class="text-4xl font-bold text-gray-800">Fitness App Admin Panel</h1>
-                            <p class="text-gray-600">Manage workouts, students, nutrition plans, and more</p>
+                            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Fitness App Admin Panel</h1>
+                            <p class="text-sm sm:text-base text-gray-600 hidden sm:block">Manage workouts, students, nutrition plans, and more</p>
                         </div>
                     </div>
                     <button
                         @click="logout"
-                        class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-all hover:-translate-y-0.5 shadow-lg"
+                        class="self-start sm:self-auto px-4 sm:px-6 py-2 sm:py-3 bg-red-500 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-red-600 transition-all hover:-translate-y-0.5 shadow-lg"
                     >
                         Logout
                     </button>
@@ -116,18 +116,18 @@ const logout = () => {
             </div>
 
             <!-- Navigation Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <!-- Students Card -->
                 <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer overflow-hidden"
                      @click="router.visit('/admin/students')"
                 >
-                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white">
-                        <UsersIcon class="w-14 h-14 mb-3" />
-                        <h3 class="text-xl font-bold">Students</h3>
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 sm:p-8 text-white">
+                        <UsersIcon class="w-12 h-12 sm:w-16 sm:h-16 mb-3 sm:mb-4" />
+                        <h3 class="text-xl sm:text-2xl font-bold">Students</h3>
                     </div>
-                    <div class="p-6">
-                        <p class="text-gray-600 text-sm mb-4">View and manage student profiles and individual workouts</p>
-                        <div class="flex items-center text-blue-600 font-semibold text-sm">
+                    <div class="p-5 sm:p-6">
+                        <p class="text-gray-600 text-sm sm:text-base mb-4 leading-relaxed">View and manage student profiles and individual workouts</p>
+                        <div class="flex items-center text-blue-600 font-semibold text-sm sm:text-base">
                             <span>Manage Students</span>
                             <span class="ml-2">→</span>
                         </div>
@@ -138,13 +138,13 @@ const logout = () => {
                 <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer overflow-hidden"
                      @click="router.visit('/admin/workouts')"
                 >
-                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white">
-                        <FireIcon class="w-14 h-14 mb-3" />
-                        <h3 class="text-xl font-bold">Workouts</h3>
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-6 sm:p-8 text-white">
+                        <FireIcon class="w-12 h-12 sm:w-16 sm:h-16 mb-3 sm:mb-4" />
+                        <h3 class="text-xl sm:text-2xl font-bold">Workouts</h3>
                     </div>
-                    <div class="p-6">
-                        <p class="text-gray-600 text-sm mb-4">Create and manage workout programs with exercises and videos</p>
-                        <div class="flex items-center text-purple-600 font-semibold text-sm">
+                    <div class="p-5 sm:p-6">
+                        <p class="text-gray-600 text-sm sm:text-base mb-4 leading-relaxed">Create and manage workout programs with exercises and videos</p>
+                        <div class="flex items-center text-purple-600 font-semibold text-sm sm:text-base">
                             <span>Manage Workouts</span>
                             <span class="ml-2">→</span>
                         </div>
@@ -153,34 +153,34 @@ const logout = () => {
             </div>
 
             <!-- Quick Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-600 text-sm mb-1">Total Workouts</p>
-                            <p class="text-3xl font-bold text-purple-600">{{ workoutsList.length }}</p>
+                            <p class="text-gray-600 text-xs sm:text-sm mb-1">Total Workouts</p>
+                            <p class="text-2xl sm:text-3xl font-bold text-purple-600">{{ workoutsList.length }}</p>
                         </div>
-                        <FireIcon class="w-12 h-12 text-purple-600" />
+                        <FireIcon class="w-10 h-10 sm:w-12 sm:h-12 text-purple-600" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-600 text-sm mb-1">Total Students</p>
-                            <p class="text-3xl font-bold text-blue-600">{{ studentsList.length }}</p>
+                            <p class="text-gray-600 text-xs sm:text-sm mb-1">Total Students</p>
+                            <p class="text-2xl sm:text-3xl font-bold text-blue-600">{{ studentsList.length }}</p>
                         </div>
-                        <UsersIcon class="w-12 h-12 text-blue-600" />
+                        <UsersIcon class="w-10 h-10 sm:w-12 sm:h-12 text-blue-600" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-600 text-sm mb-1">Active Plans</p>
-                            <p class="text-3xl font-bold text-green-600">{{ workoutsList.filter(w => w.is_active).length }}</p>
+                            <p class="text-gray-600 text-xs sm:text-sm mb-1">Active Plans</p>
+                            <p class="text-2xl sm:text-3xl font-bold text-green-600">{{ workoutsList.filter(w => w.is_active).length }}</p>
                         </div>
-                        <CheckCircleIcon class="w-12 h-12 text-green-600" />
+                        <CheckCircleIcon class="w-10 h-10 sm:w-12 sm:h-12 text-green-600" />
                     </div>
                 </div>
             </div>

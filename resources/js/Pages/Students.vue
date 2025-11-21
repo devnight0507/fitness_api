@@ -93,28 +93,29 @@ const formatDate = (dateString) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-5">
+    <div class="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 p-3 sm:p-5">
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
-            <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <UsersIcon class="w-10 h-10 text-purple-600" />
+            <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+                <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <UsersIcon class="w-8 h-8 sm:w-10 sm:h-10 text-purple-600 flex-shrink-0" />
                         <div>
-                            <h1 class="text-4xl font-bold text-gray-800">Students Management</h1>
-                            <p class="text-gray-600">Manage student profiles and training plans</p>
+                            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Students Management</h1>
+                            <p class="text-sm sm:text-base text-gray-600 hidden sm:block">Manage student profiles and training plans</p>
                         </div>
                     </div>
-                    <div class="flex gap-3">
+                    <div class="flex gap-2 sm:gap-3">
                         <button
                             @click="goToAdmin"
-                            class="px-6 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition"
+                            class="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 bg-gray-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-700 transition"
                         >
-                            ← Back to Dashboard
+                            <span class="hidden sm:inline">← Back to Dashboard</span>
+                            <span class="sm:hidden">← Back</span>
                         </button>
                         <button
                             @click="logout"
-                            class="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+                            class="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 bg-red-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-red-700 transition"
                         >
                             Logout
                         </button>
@@ -123,30 +124,30 @@ const formatDate = (dateString) => {
             </div>
 
             <!-- Search Bar -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <div class="bg-white rounded-2xl shadow-xl p-4 sm:p-6 mb-4 sm:mb-6">
                 <div class="relative">
                     <input
                         v-model="searchQuery"
                         type="text"
-                        placeholder="Search students by name, email, or goal..."
-                        class="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-purple-600 focus:outline-none transition"
+                        placeholder="Search students..."
+                        class="w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-300 rounded-xl focus:border-purple-600 focus:outline-none transition pr-12"
                     >
-                    <MagnifyingGlassIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+                    <MagnifyingGlassIcon class="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
                 </div>
             </div>
 
             <!-- Students Grid -->
-            <div v-if="isLoading" class="bg-white rounded-2xl shadow-xl p-12 text-center">
-                <p class="text-gray-600 text-lg">Loading students...</p>
+            <div v-if="isLoading" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 text-center">
+                <p class="text-gray-600 text-base sm:text-lg">Loading students...</p>
             </div>
 
-            <div v-else-if="filteredStudents.length === 0" class="bg-white rounded-2xl shadow-xl p-12 text-center">
-                <p class="text-gray-600 text-lg">
+            <div v-else-if="filteredStudents.length === 0" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 text-center">
+                <p class="text-gray-600 text-base sm:text-lg">
                     {{ searchQuery ? 'No students found matching your search' : 'No students yet' }}
                 </p>
             </div>
 
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div
                     v-for="student in filteredStudents"
                     :key="student.id"
@@ -154,42 +155,42 @@ const formatDate = (dateString) => {
                     class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer overflow-hidden"
                 >
                     <!-- Student Avatar -->
-                    <div class="h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                        <div v-if="!getAvatarUrl(student)" class="w-32 h-32 rounded-full border-4 border-white bg-teal-500 flex items-center justify-center">
-                            <span class="text-white text-5xl font-bold">{{ getInitial(student.name) }}</span>
+                    <div class="h-40 sm:h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                        <div v-if="!getAvatarUrl(student)" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-teal-500 flex items-center justify-center">
+                            <span class="text-white text-4xl sm:text-5xl font-bold">{{ getInitial(student.name) }}</span>
                         </div>
                         <img
                             v-else
                             :src="getAvatarUrl(student)"
                             :alt="student.name"
-                            class="w-32 h-32 rounded-full border-4 border-white object-cover"
+                            class="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white object-cover"
                         >
                     </div>
 
                     <!-- Student Info -->
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">{{ student.name }}</h3>
-                        <p class="text-gray-600 text-sm mb-4">{{ student.email }}</p>
+                    <div class="p-4 sm:p-6">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2">{{ student.name }}</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 truncate">{{ student.email }}</p>
 
-                        <div class="space-y-2 mb-4">
-                            <div v-if="student.age" class="flex items-center gap-2 text-sm text-gray-600">
-                                <CakeIcon class="w-5 h-5" />
+                        <div class="space-y-2 mb-3 sm:mb-4">
+                            <div v-if="student.age" class="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                                <CakeIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                                 <span>{{ student.age }} years old</span>
                             </div>
-                            <div v-if="student.goal" class="flex items-center gap-2 text-sm text-gray-600">
-                                <FlagIcon class="w-5 h-5" />
+                            <div v-if="student.goal" class="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                                <FlagIcon class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                                 <span class="line-clamp-2">{{ student.goal }}</span>
                             </div>
                         </div>
 
-                        <div class="pt-4 border-t border-gray-200">
+                        <div class="pt-3 sm:pt-4 border-t border-gray-200">
                             <p class="text-xs text-gray-500">
                                 Member since {{ formatDate(student.created_at) }}
                             </p>
                         </div>
 
                         <button
-                            class="w-full mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                            class="w-full mt-3 sm:mt-4 px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition"
                         >
                             View Profile →
                         </button>
@@ -198,13 +199,13 @@ const formatDate = (dateString) => {
             </div>
 
             <!-- Stats Summary -->
-            <div class="mt-8 bg-white rounded-2xl shadow-xl p-6">
+            <div class="mt-6 sm:mt-8 bg-white rounded-2xl shadow-xl p-4 sm:p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-600 text-sm">Total Students</p>
-                        <p class="text-3xl font-bold text-purple-600">{{ filteredStudents.length }}</p>
+                        <p class="text-gray-600 text-xs sm:text-sm">Total Students</p>
+                        <p class="text-2xl sm:text-3xl font-bold text-purple-600">{{ filteredStudents.length }}</p>
                     </div>
-                    <UsersIcon class="w-14 h-14 text-purple-600" />
+                    <UsersIcon class="w-10 h-10 sm:w-14 sm:h-14 text-purple-600" />
                 </div>
             </div>
         </div>
