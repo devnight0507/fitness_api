@@ -36,19 +36,13 @@ const form = ref({
     level: '',
     description: '',
     thumbnail_path: '',
-    video_path: '',
-    youtube_url: '',
-    video_file: null,
     thumbnail_file: null,
     exercises: [],
     is_personal: false,
     assigned_user_id: null,
 });
 
-const videoFileName = ref('Click to upload video (MP4, MOV, AVI, MKV, WEBM)');
 const thumbnailFileName = ref('Click to upload image (JPG, PNG)');
-const uploadProgress = ref(0);
-const isUploading = ref(false);
 const isSaving = ref(false);
 
 // Exercise form state
@@ -94,9 +88,6 @@ onMounted(() => {
             level: props.workout.level,
             description: props.workout.description || '',
             thumbnail_path: props.workout.thumbnail_path || '',
-            video_path: props.workout.video_path || '',
-            youtube_url: props.workout.youtube_url || '',
-            video_file: null,
             thumbnail_file: null,
             exercises: props.workout.exercises || [],
             is_personal: props.workout.is_personal || false,
@@ -113,14 +104,6 @@ const pageTitle = computed(() => {
     }
     return studentId.value ? 'Create Personal Workout for Student' : 'Create New Workout';
 });
-
-const handleVideoChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        form.value.video_file = file;
-        videoFileName.value = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-    }
-};
 
 const handleThumbnailChange = (event) => {
     const file = event.target.files[0];
@@ -245,6 +228,8 @@ const submitWorkout = async () => {
         reps: ex.reps?.toString() || null, // reps can be string like "60 sec"
         rest: ex.rest || null,
         notes: ex.notes || null,
+        video_path: ex.video_path || null,
+        youtube_url: ex.youtube_url || null,
         order_index: ex.order_index,
     }));
 
@@ -256,7 +241,6 @@ const submitWorkout = async () => {
         level: form.value.level,
         description: form.value.description,
         thumbnail_path: form.value.thumbnail_path,
-        youtube_url: form.value.youtube_url,
         exercises: exercises,
         is_personal: form.value.id ? form.value.is_personal : (studentId.value ? true : false),
         assigned_user_id: form.value.id ? form.value.assigned_user_id : (studentId.value ? parseInt(studentId.value) : null),
@@ -289,12 +273,6 @@ const submitWorkout = async () => {
                 message += ' Thumbnail uploaded!';
             }
 
-            // Upload video if selected
-            if (form.value.video_file) {
-                await uploadVideo(savedWorkout.id);
-                message += ' Video uploaded!';
-            }
-
             toast.success(message);
 
             // Redirect back to appropriate page
@@ -320,47 +298,6 @@ const submitWorkout = async () => {
     } finally {
         isSaving.value = false;
     }
-};
-
-const uploadVideo = async (workoutId) => {
-    const formData = new FormData();
-    formData.append('video', form.value.video_file);
-    formData.append('workout_id', workoutId);
-
-    isUploading.value = true;
-
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-
-        xhr.upload.addEventListener('progress', (e) => {
-            if (e.lengthComputable) {
-                uploadProgress.value = Math.round((e.loaded / e.total) * 100);
-            }
-        });
-
-        xhr.addEventListener('load', () => {
-            isUploading.value = false;
-            uploadProgress.value = 0;
-
-            if (xhr.status >= 200 && xhr.status < 300) {
-                resolve(JSON.parse(xhr.responseText));
-            } else {
-                const errorData = JSON.parse(xhr.responseText);
-                console.error('Video upload error response:', errorData);
-                reject(new Error(errorData.message || 'Video upload failed'));
-            }
-        });
-
-        xhr.addEventListener('error', () => {
-            isUploading.value = false;
-            uploadProgress.value = 0;
-            reject(new Error('Video upload error'));
-        });
-
-        xhr.open('POST', '/api/videos/upload');
-        xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('authToken')}`);
-        xhr.send(formData);
-    });
 };
 
 const uploadThumbnail = async (workoutId) => {
@@ -505,50 +442,6 @@ const goBack = () => {
                             placeholder="Describe the workout..."
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none transition resize-none"
                         ></textarea>
-                    </div>
-
-                    <!-- Video Upload -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Video Upload (Local Video)</label>
-
-                        <!-- Current Video Indicator (when editing) -->
-                        <div v-if="form.id && form.video_path" class="mb-3 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
-                            <div class="flex items-center gap-2">
-                                <span class="text-green-700 font-semibold">✅ Current Video:</span>
-                                <span class="text-sm text-gray-700">{{ form.video_path.split('/').pop() }}</span>
-                            </div>
-                            <p class="text-xs text-gray-600 mt-2">Upload a new video below to replace the current one</p>
-                        </div>
-
-                        <div
-                            @click="$refs.videoInput.click()"
-                            class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-purple-600 hover:bg-purple-50 transition"
-                        >
-                            <input
-                                ref="videoInput"
-                                type="file"
-                                @change="handleVideoChange"
-                                accept="video/mp4,video/quicktime,video/x-msvideo,.mp4,.mov,.avi,.mkv,.webm"
-                                class="hidden"
-                            >
-                            <p class="text-gray-700">📹 {{ videoFileName }}</p>
-                            <p class="text-sm text-gray-500 mt-2">Max size: 100MB</p>
-                            <div v-if="isUploading" class="w-full bg-gray-200 rounded-full h-2 mt-4">
-                                <div class="bg-purple-600 h-2 rounded-full transition-all" :style="{ width: uploadProgress + '%' }"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- YouTube URL -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">OR YouTube Video URL</label>
-                        <input
-                            v-model="form.youtube_url"
-                            type="url"
-                            placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none transition"
-                        >
-                        <p class="text-sm text-gray-500 mt-2">Use either local video upload OR YouTube URL (not both)</p>
                     </div>
 
                     <!-- Thumbnail Upload/URL -->
@@ -781,7 +674,7 @@ const goBack = () => {
                     <div class="flex gap-4 pt-6">
                         <button
                             type="submit"
-                            :disabled="isSaving || isUploading"
+                            :disabled="isSaving"
                             class="flex-1 px-8 py-4 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all hover:-translate-y-0.5 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <span v-if="!isSaving">{{ form.id ? 'Update' : 'Create' }} Workout</span>

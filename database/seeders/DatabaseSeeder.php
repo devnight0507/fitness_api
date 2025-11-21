@@ -73,7 +73,6 @@ class DatabaseSeeder extends Seeder
             'duration' => '45 min',
             'level' => 'Intermediate',
             'description' => 'Complete full body workout focusing on major muscle groups with compound movements.',
-            'video_path' => 'videos/workouts/full_body_strength.mp4',
             'thumbnail_path' => 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48',
             'admin_id' => $admin->id,
             'is_active' => true,
@@ -85,6 +84,8 @@ class DatabaseSeeder extends Seeder
             'sets' => 4,
             'reps' => '8-10',
             'rest' => 90,
+            'notes' => 'Keep your back straight and core engaged',
+            'youtube_url' => 'https://www.youtube.com/watch?v=ultWZbUMPL8',
             'order_index' => 0,
         ]);
 
@@ -94,6 +95,8 @@ class DatabaseSeeder extends Seeder
             'sets' => 4,
             'reps' => '8-10',
             'rest' => 90,
+            'notes' => 'Control the descent and explode up',
+            'youtube_url' => 'https://www.youtube.com/watch?v=rT7DgCr-3pg',
             'order_index' => 1,
         ]);
 
@@ -103,6 +106,8 @@ class DatabaseSeeder extends Seeder
             'sets' => 3,
             'reps' => '6-8',
             'rest' => 120,
+            'notes' => 'Hinge at the hips, keep bar close to body',
+            'youtube_url' => 'https://www.youtube.com/watch?v=op9kVnSso6Q',
             'order_index' => 2,
         ]);
 
@@ -112,7 +117,6 @@ class DatabaseSeeder extends Seeder
             'duration' => '30 min',
             'level' => 'Beginner',
             'description' => 'High intensity interval training you can do at home with no equipment.',
-            'video_path' => 'videos/workouts/hiit_cardio.mp4',
             'thumbnail_path' => 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438',
             'admin_id' => $admin->id,
             'is_active' => true,
@@ -124,6 +128,8 @@ class DatabaseSeeder extends Seeder
             'sets' => 3,
             'reps' => '30s',
             'rest' => 15,
+            'notes' => 'Full range of motion, keep a steady pace',
+            'youtube_url' => 'https://www.youtube.com/watch?v=iSSAk4XCsRA',
             'order_index' => 0,
         ]);
 
@@ -133,6 +139,8 @@ class DatabaseSeeder extends Seeder
             'sets' => 3,
             'reps' => '30s',
             'rest' => 15,
+            'notes' => 'Jump high, chest to floor, maintain good form',
+            'youtube_url' => 'https://www.youtube.com/watch?v=TU8QYVW0gDU',
             'order_index' => 1,
         ]);
 
@@ -142,7 +150,6 @@ class DatabaseSeeder extends Seeder
             'duration' => '60 min',
             'level' => 'Advanced',
             'description' => 'Focused upper body pushing exercises for chest, shoulders, and triceps.',
-            'video_path' => 'videos/workouts/upper_body_push.mp4',
             'thumbnail_path' => 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b',
             'admin_id' => $admin->id,
             'is_active' => true,
@@ -154,6 +161,8 @@ class DatabaseSeeder extends Seeder
             'sets' => 4,
             'reps' => '10-12',
             'rest' => 60,
+            'notes' => 'Focus on chest contraction, control the weight',
+            'youtube_url' => 'https://www.youtube.com/watch?v=8iPEnn-ltC8',
             'order_index' => 0,
         ]);
 

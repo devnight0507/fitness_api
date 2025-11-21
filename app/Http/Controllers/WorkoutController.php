@@ -262,6 +262,8 @@ class WorkoutController extends Controller
                     'reps' => $exercise['reps'] ?? null,
                     'rest' => $exercise['rest'] ?? null,
                     'notes' => $exercise['notes'] ?? null,
+                    'video_path' => $exercise['video_path'] ?? null,
+                    'youtube_url' => $exercise['youtube_url'] ?? null,
                     'order_index' => $exercise['order_index'] ?? $index,
                 ]);
             }
