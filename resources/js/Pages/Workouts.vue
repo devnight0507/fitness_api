@@ -315,9 +315,6 @@ const getThumbnailUrl = (thumbnailPath) => {
                                 </span>
                             </div>
                             <p class="text-gray-600 text-sm mb-4">{{ workout.description || 'No description' }}</p>
-                            <p class="text-sm mb-2" :class="workout.video_path || workout.youtube_url ? 'text-green-600' : 'text-red-600'">
-                                {{ workout.video_path ? 'Local video uploaded' : workout.youtube_url ? 'YouTube video linked' : 'No video' }}
-                            </p>
                             <p class="text-sm mb-4 text-blue-600">
                                 <FireIcon class="w-4 h-4 inline-block mr-1" />
                                 {{ workout.exercise_count || 0 }} exercises
