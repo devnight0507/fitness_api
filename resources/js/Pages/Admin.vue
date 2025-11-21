@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
-import { UsersIcon, FireIcon, CheckCircleIcon } from '@heroicons/vue/24/solid';
+import { UsersIcon, FireIcon, CheckCircleIcon, ChatBubbleLeftRightIcon, CalendarIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
     workouts: Array,
@@ -146,6 +146,40 @@ const logout = () => {
                         <p class="text-gray-600 text-sm sm:text-base mb-4 leading-relaxed">Create and manage workout programs with exercises and videos</p>
                         <div class="flex items-center text-purple-600 font-semibold text-sm sm:text-base">
                             <span>Manage Workouts</span>
+                            <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Card -->
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer overflow-hidden"
+                     @click="router.visit('/admin/messages')"
+                >
+                    <div class="bg-gradient-to-br from-teal-500 to-teal-600 p-6 sm:p-8 text-white">
+                        <ChatBubbleLeftRightIcon class="w-12 h-12 sm:w-16 sm:h-16 mb-3 sm:mb-4" />
+                        <h3 class="text-xl sm:text-2xl font-bold">Messages</h3>
+                    </div>
+                    <div class="p-5 sm:p-6">
+                        <p class="text-gray-600 text-sm sm:text-base mb-4 leading-relaxed">Chat with your students and manage conversations</p>
+                        <div class="flex items-center text-teal-600 font-semibold text-sm sm:text-base">
+                            <span>View Messages</span>
+                            <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Card -->
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer overflow-hidden"
+                     @click="router.visit('/admin/calendar')"
+                >
+                    <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-6 sm:p-8 text-white">
+                        <CalendarIcon class="w-12 h-12 sm:w-16 sm:h-16 mb-3 sm:mb-4" />
+                        <h3 class="text-xl sm:text-2xl font-bold">Calendar</h3>
+                    </div>
+                    <div class="p-5 sm:p-6">
+                        <p class="text-gray-600 text-sm sm:text-base mb-4 leading-relaxed">Schedule events and manage student training calendars</p>
+                        <div class="flex items-center text-orange-600 font-semibold text-sm sm:text-base">
+                            <span>Manage Calendar</span>
                             <span class="ml-2">→</span>
                         </div>
                     </div>

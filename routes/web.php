@@ -80,6 +80,20 @@ Route::get('/admin/students/{id}', function ($id) {
     ]);
 })->name('admin.students.show');
 
+// Messages/Chat management
+Route::get('/admin/messages', function () {
+    return Inertia::render('Messages', [
+        'user' => null,
+    ]);
+})->name('admin.messages');
+
+// Calendar management
+Route::get('/admin/calendar', function () {
+    return Inertia::render('Calendar', [
+        'user' => null,
+    ]);
+})->name('admin.calendar');
+
 // Nutrition management
 Route::get('/admin/nutrition/create', function () {
     return Inertia::render('NutritionForm', [

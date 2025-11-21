@@ -15,7 +15,14 @@ class CalendarController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = CalendarEvent::where('user_id', $user->id);
+
+        // If admin, show all events they created (for their students)
+        // If student, show only their own events
+        if ($user->role === 'admin') {
+            $query = CalendarEvent::where('created_by', $user->id);
+        } else {
+            $query = CalendarEvent::where('user_id', $user->id);
+        }
 
         // Filter by date range
         if ($request->has('start_date')) {
@@ -61,7 +68,14 @@ class CalendarController extends Controller
     public function grouped(Request $request)
     {
         $user = $request->user();
-        $query = CalendarEvent::where('user_id', $user->id);
+
+        // If admin, show all events they created (for their students)
+        // If student, show only their own events
+        if ($user->role === 'admin') {
+            $query = CalendarEvent::where('created_by', $user->id);
+        } else {
+            $query = CalendarEvent::where('user_id', $user->id);
+        }
 
         // Filter by date range
         if ($request->has('start_date')) {

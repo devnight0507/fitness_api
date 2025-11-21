@@ -249,54 +249,274 @@ class DatabaseSeeder extends Seeder
             'assigned_by' => $admin->id,
         ]);
 
-        // Create Messages
+        // Create Messages - Conversation with Mike
         Message::create([
             'sender_id' => $admin->id,
             'receiver_id' => $student1->id,
-            'message' => 'Hey Mike! How are you finding the new workout plan?',
-            'read_at' => now()->subHours(2),
+            'message' => 'Hey Mike! Welcome to your fitness journey. I\'ve assigned you the Full Body Strength Training program.',
+            'read_at' => now()->subDays(3),
+            'created_at' => now()->subDays(3),
         ]);
 
         Message::create([
             'sender_id' => $student1->id,
             'receiver_id' => $admin->id,
-            'message' => 'Hi! It\'s great, but the deadlifts are tough!',
-            'read_at' => now()->subHour(),
+            'message' => 'Thank you! I\'m excited to get started.',
+            'read_at' => now()->subDays(3)->addHours(1),
+            'created_at' => now()->subDays(3)->addHours(1),
         ]);
 
         Message::create([
             'sender_id' => $admin->id,
             'receiver_id' => $student1->id,
-            'message' => 'That\'s normal! Make sure to focus on form first. Let me know if you need any adjustments.',
-            'read_at' => null,
+            'message' => 'Great! Remember to warm up properly before each session and focus on proper form over heavy weights.',
+            'read_at' => now()->subDays(3)->addHours(2),
+            'created_at' => now()->subDays(3)->addHours(2),
         ]);
 
-        // Create Calendar Events
+        Message::create([
+            'sender_id' => $student1->id,
+            'receiver_id' => $admin->id,
+            'message' => 'Hey! I just completed day 3. The deadlifts are really challenging!',
+            'read_at' => now()->subDays(1),
+            'created_at' => now()->subDays(1),
+        ]);
+
+        Message::create([
+            'sender_id' => $admin->id,
+            'receiver_id' => $student1->id,
+            'message' => 'That\'s totally normal! Deadlifts are one of the most demanding exercises. Make sure to keep your back straight and core engaged. Watch the video again if needed.',
+            'read_at' => now()->subHours(18),
+            'created_at' => now()->subHours(18),
+        ]);
+
+        Message::create([
+            'sender_id' => $student1->id,
+            'receiver_id' => $admin->id,
+            'message' => 'Will do! Should I reduce the weight?',
+            'read_at' => now()->subHours(17),
+            'created_at' => now()->subHours(17),
+        ]);
+
+        Message::create([
+            'sender_id' => $admin->id,
+            'receiver_id' => $student1->id,
+            'message' => 'Yes, drop the weight by 20% and focus on perfecting your form for the next 2 weeks. Form is everything!',
+            'read_at' => null,
+            'created_at' => now()->subHours(16),
+        ]);
+
+        // Messages with Emma
+        Message::create([
+            'sender_id' => $admin->id,
+            'receiver_id' => $student2->id,
+            'message' => 'Hi Emma! I\'ve assigned you the Home HIIT Cardio program and the Weight Loss nutrition plan.',
+            'read_at' => now()->subDays(2),
+            'created_at' => now()->subDays(2),
+        ]);
+
+        Message::create([
+            'sender_id' => $student2->id,
+            'receiver_id' => $admin->id,
+            'message' => 'Perfect! Can I do this program every day?',
+            'read_at' => now()->subDays(2)->addHours(3),
+            'created_at' => now()->subDays(2)->addHours(3),
+        ]);
+
+        Message::create([
+            'sender_id' => $admin->id,
+            'receiver_id' => $student2->id,
+            'message' => 'I recommend 4-5 times per week with rest days in between. Recovery is just as important as training!',
+            'read_at' => now()->subDays(2)->addHours(4),
+            'created_at' => now()->subDays(2)->addHours(4),
+        ]);
+
+        Message::create([
+            'sender_id' => $student2->id,
+            'receiver_id' => $admin->id,
+            'message' => 'Got it! Also, the Greek Yogurt Parfait for breakfast is delicious 😊',
+            'read_at' => now()->subHours(5),
+            'created_at' => now()->subHours(5),
+        ]);
+
+        Message::create([
+            'sender_id' => $admin->id,
+            'receiver_id' => $student2->id,
+            'message' => 'So glad you like it! Nutrition is 70% of the journey. Keep it up!',
+            'read_at' => null,
+            'created_at' => now()->subHours(3),
+        ]);
+
+        // Messages with Alex
+        Message::create([
+            'sender_id' => $admin->id,
+            'receiver_id' => $student3->id,
+            'message' => 'Hi Alex! Let me know what your fitness goals are so I can create a customized plan for you.',
+            'read_at' => now()->subHours(12),
+            'created_at' => now()->subHours(12),
+        ]);
+
+        Message::create([
+            'sender_id' => $student3->id,
+            'receiver_id' => $admin->id,
+            'message' => 'Thanks! I want to focus on cardio and endurance. Maybe some running programs?',
+            'read_at' => null,
+            'created_at' => now()->subHours(10),
+        ]);
+
+        // Create Calendar Events for Mike (Student 1)
+        // This week
         CalendarEvent::create([
             'user_id' => $student1->id,
-            'name' => 'Upper Body Workout',
+            'name' => 'Full Body Strength Training',
             'type' => 'workout',
             'date' => Carbon::today()->toDateString(),
             'time' => '6:00 PM',
+            'description' => 'Focus on compound movements with proper form',
             'created_by' => $admin->id,
         ]);
 
         CalendarEvent::create([
             'user_id' => $student1->id,
-            'name' => 'Leg Day',
+            'name' => 'Nutrition Plan Check-in',
+            'type' => 'nutrition',
+            'date' => Carbon::today()->toDateString(),
+            'time' => '8:00 AM',
+            'description' => 'Review meal prep for the week',
+            'created_by' => $admin->id,
+        ]);
+
+        CalendarEvent::create([
+            'user_id' => $student1->id,
+            'name' => 'Upper Body Push Day',
             'type' => 'workout',
             'date' => Carbon::tomorrow()->toDateString(),
             'time' => '6:00 PM',
+            'description' => 'Chest, shoulders, and triceps focus',
             'created_by' => $admin->id,
         ]);
 
         CalendarEvent::create([
             'user_id' => $student1->id,
-            'name' => 'Rest Day',
+            'name' => 'Rest Day - Active Recovery',
             'type' => 'rest',
             'date' => Carbon::today()->addDays(2)->toDateString(),
-            'time' => 'All Day',
-            'created_by' => $student1->id,
+            'time' => '10:00 AM',
+            'description' => 'Light stretching and mobility work',
+            'created_by' => $admin->id,
+        ]);
+
+        CalendarEvent::create([
+            'user_id' => $student1->id,
+            'name' => 'Lower Body Workout',
+            'type' => 'workout',
+            'date' => Carbon::today()->addDays(3)->toDateString(),
+            'time' => '6:00 PM',
+            'description' => 'Squats, deadlifts, and leg accessories',
+            'created_by' => $admin->id,
+        ]);
+
+        CalendarEvent::create([
+            'user_id' => $student1->id,
+            'name' => 'Body Composition Assessment',
+            'type' => 'assessment',
+            'date' => Carbon::today()->addDays(4)->toDateString(),
+            'time' => '9:00 AM',
+            'description' => 'Monthly progress check: weight, measurements, photos',
+            'created_by' => $admin->id,
+        ]);
+
+        CalendarEvent::create([
+            'user_id' => $student1->id,
+            'name' => 'HIIT Cardio Session',
+            'type' => 'workout',
+            'date' => Carbon::today()->addDays(5)->toDateString(),
+            'time' => '7:00 AM',
+            'description' => '30 minutes high intensity intervals',
+            'created_by' => $admin->id,
+        ]);
+
+        // Next week
+        CalendarEvent::create([
+            'user_id' => $student1->id,
+            'name' => 'Full Body Workout',
+            'type' => 'workout',
+            'date' => Carbon::today()->addDays(7)->toDateString(),
+            'time' => '6:00 PM',
+            'description' => 'Start of new training week',
+            'created_by' => $admin->id,
+        ]);
+
+        // Create Calendar Events for Emma (Student 2)
+        CalendarEvent::create([
+            'user_id' => $student2->id,
+            'name' => 'Home HIIT Cardio',
+            'type' => 'workout',
+            'date' => Carbon::today()->toDateString(),
+            'time' => '7:00 AM',
+            'description' => 'Morning cardio session - no equipment needed',
+            'created_by' => $admin->id,
+        ]);
+
+        CalendarEvent::create([
+            'user_id' => $student2->id,
+            'name' => 'Meal Prep Day',
+            'type' => 'nutrition',
+            'date' => Carbon::today()->addDays(1)->toDateString(),
+            'time' => '11:00 AM',
+            'description' => 'Prepare healthy meals for the week',
+            'created_by' => $admin->id,
+        ]);
+
+        CalendarEvent::create([
+            'user_id' => $student2->id,
+            'name' => 'Active Rest - Yoga',
+            'type' => 'rest',
+            'date' => Carbon::today()->addDays(2)->toDateString(),
+            'time' => '8:00 AM',
+            'description' => 'Gentle yoga and stretching',
+            'created_by' => $admin->id,
+        ]);
+
+        CalendarEvent::create([
+            'user_id' => $student2->id,
+            'name' => 'HIIT Cardio',
+            'type' => 'workout',
+            'date' => Carbon::today()->addDays(3)->toDateString(),
+            'time' => '7:00 AM',
+            'description' => 'Burpees, jumping jacks, mountain climbers',
+            'created_by' => $admin->id,
+        ]);
+
+        CalendarEvent::create([
+            'user_id' => $student2->id,
+            'name' => 'Progress Check',
+            'type' => 'assessment',
+            'date' => Carbon::today()->addDays(6)->toDateString(),
+            'time' => '10:00 AM',
+            'description' => 'Weekly weigh-in and measurements',
+            'created_by' => $admin->id,
+        ]);
+
+        // Create Calendar Events for Alex (Student 3)
+        CalendarEvent::create([
+            'user_id' => $student3->id,
+            'name' => 'Initial Assessment',
+            'type' => 'assessment',
+            'date' => Carbon::today()->addDays(1)->toDateString(),
+            'time' => '2:00 PM',
+            'description' => 'Baseline fitness assessment and goal setting',
+            'created_by' => $admin->id,
+        ]);
+
+        CalendarEvent::create([
+            'user_id' => $student3->id,
+            'name' => 'Consultation - Training Plan',
+            'type' => 'assessment',
+            'date' => Carbon::today()->addDays(3)->toDateString(),
+            'time' => '3:00 PM',
+            'description' => 'Review and finalize customized endurance program',
+            'created_by' => $admin->id,
         ]);
 
         // Create Motivational Quotes
