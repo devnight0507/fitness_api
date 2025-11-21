@@ -29,6 +29,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Video streaming (supports token in query parameter for mobile video players)
 Route::get('/videos/{workoutId}/stream', [VideoController::class, 'stream']);
+Route::get('/videos/exercise/{exerciseId}/stream', [VideoController::class, 'streamExercise']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -94,6 +95,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/videos/{workoutId}/stats', [VideoController::class, 'stats']);
     Route::get('/videos/my-history', [VideoController::class, 'myHistory']);
     Route::post('/videos/upload', [VideoController::class, 'upload']);
+    Route::post('/videos/exercise/upload', [VideoController::class, 'uploadExerciseVideo']);
     Route::post('/thumbnails/upload', [VideoController::class, 'uploadThumbnail']);
 
     // Students

@@ -13,6 +13,8 @@ class WorkoutExercise extends Model
         'reps',
         'rest',
         'notes',
+        'video_path',
+        'youtube_url',
         'order_index',
     ];
 

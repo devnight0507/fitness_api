@@ -58,7 +58,12 @@ const exerciseForm = ref({
     reps: '10',
     rest: 60,
     notes: '',
+    video_path: '',
+    youtube_url: '',
 });
+
+const exerciseVideoUploading = ref(false);
+const exerciseVideoFileName = ref('');
 
 // Computed property to display thumbnail URL properly
 const displayThumbnailUrl = computed(() => {
@@ -125,6 +130,43 @@ const handleThumbnailChange = (event) => {
     }
 };
 
+const handleExerciseVideoChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    exerciseVideoUploading.value = true;
+    exerciseVideoFileName.value = `Uploading ${file.name}...`;
+
+    try {
+        const formData = new FormData();
+        formData.append('video', file);
+
+        const token = window.localStorage.getItem('authToken');
+        const response = await fetch('/api/videos/exercise/upload', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        exerciseForm.value.video_path = data.video_path;
+        exerciseVideoFileName.value = `✓ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        toast.success('Exercise video uploaded!');
+    } catch (error) {
+        console.error('Exercise video upload error:', error);
+        toast.error('Failed to upload exercise video');
+        exerciseVideoFileName.value = '';
+    } finally {
+        exerciseVideoUploading.value = false;
+    }
+};
+
 const addExercise = () => {
 
     if (!exerciseForm.value.name.trim()) {
@@ -138,6 +180,8 @@ const addExercise = () => {
         reps: exerciseForm.value.reps,
         rest: exerciseForm.value.rest,
         notes: exerciseForm.value.notes,
+        video_path: exerciseForm.value.video_path,
+        youtube_url: exerciseForm.value.youtube_url,
         order_index: form.value.exercises.length,
     };
 
@@ -152,7 +196,10 @@ const addExercise = () => {
         reps: '10',
         rest: 60,
         notes: '',
+        video_path: '',
+        youtube_url: '',
     };
+    exerciseVideoFileName.value = '';
 };
 
 const removeExercise = (index) => {
@@ -599,16 +646,53 @@ const goBack = () => {
                                         class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
                                     >
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Observations / Notes</label>
-                                    <textarea
-                                        v-model="exerciseForm.notes"
-                                        rows="3"
-                                        placeholder="Add corrections, injury warnings, adaptations, or personalized instructions..."
-                                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none resize-none"
-                                    ></textarea>
-                                    <p class="text-xs text-gray-500 mt-1">Optional: Add any special instructions or notes for this exercise</p>
+                            </div>
+
+                            <!-- Video Upload for Exercise -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Exercise Video (Local)</label>
+                                <div
+                                    @click="$refs.exerciseVideoInput.click()"
+                                    class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-purple-600 hover:bg-purple-50 transition"
+                                >
+                                    <input
+                                        ref="exerciseVideoInput"
+                                        type="file"
+                                        @change="handleExerciseVideoChange"
+                                        accept="video/mp4,video/quicktime,video/x-msvideo,.mp4,.mov,.avi,.mkv,.webm"
+                                        class="hidden"
+                                    >
+                                    <p class="text-gray-700">
+                                        <span v-if="exerciseVideoUploading">⏳ Uploading...</span>
+                                        <span v-else-if="exerciseVideoFileName">{{ exerciseVideoFileName }}</span>
+                                        <span v-else>📹 Click to upload exercise video (MP4, MOV, AVI, MKV, WEBM)</span>
+                                    </p>
+                                    <p class="text-sm text-gray-500 mt-2">Max size: 100MB</p>
                                 </div>
+                            </div>
+
+                            <!-- YouTube URL for Exercise -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">OR YouTube Video URL</label>
+                                <input
+                                    v-model="exerciseForm.youtube_url"
+                                    type="text"
+                                    placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+                                >
+                                <p class="text-xs text-gray-500 mt-1">Use either local video upload OR YouTube URL (not both)</p>
+                            </div>
+
+                            <!-- Exercise Notes -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Observations / Notes</label>
+                                <textarea
+                                    v-model="exerciseForm.notes"
+                                    rows="3"
+                                    placeholder="Add corrections, injury warnings, adaptations, or personalized instructions..."
+                                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none resize-none"
+                                ></textarea>
+                                <p class="text-xs text-gray-500 mt-1">Optional: Add any special instructions or notes for this exercise</p>
                             </div>
                             <div class="flex justify-end">
                                 <button
@@ -653,6 +737,11 @@ const goBack = () => {
                                         </div>
                                         <div v-if="exercise.notes" class="mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700">
                                             <span class="font-semibold text-blue-700">📝 Note:</span> {{ exercise.notes }}
+                                        </div>
+                                        <div v-if="exercise.video_path || exercise.youtube_url" class="mt-2 p-2 bg-green-50 rounded text-sm text-gray-700">
+                                            <span class="font-semibold text-green-700">📹 Video:</span>
+                                            <span v-if="exercise.youtube_url"> YouTube</span>
+                                            <span v-else-if="exercise.video_path"> Uploaded</span>
                                         </div>
                                     </div>
                                     <div class="flex-shrink-0 flex gap-2">

@@ -129,6 +129,8 @@ class WorkoutController extends Controller
             'exercises.*.reps' => 'nullable|string',
             'exercises.*.rest' => 'nullable|integer',
             'exercises.*.notes' => 'nullable|string',
+            'exercises.*.video_path' => 'nullable|string',
+            'exercises.*.youtube_url' => 'nullable|string',
             'exercises.*.order_index' => 'nullable|integer',
             'is_personal' => 'nullable|boolean',
             'assigned_user_id' => 'nullable|exists:users,id',
@@ -162,6 +164,8 @@ class WorkoutController extends Controller
                     'reps' => $exercise['reps'] ?? null,
                     'rest' => $exercise['rest'] ?? null,
                     'notes' => $exercise['notes'] ?? null,
+                    'video_path' => $exercise['video_path'] ?? null,
+                    'youtube_url' => $exercise['youtube_url'] ?? null,
                     'order_index' => $exercise['order_index'] ?? $index,
                 ];
 
@@ -223,6 +227,8 @@ class WorkoutController extends Controller
             'exercises.*.reps' => 'nullable|string',
             'exercises.*.rest' => 'nullable|integer',
             'exercises.*.notes' => 'nullable|string',
+            'exercises.*.video_path' => 'nullable|string',
+            'exercises.*.youtube_url' => 'nullable|string',
             'exercises.*.order_index' => 'nullable|integer',
             'is_personal' => 'nullable|boolean',
             'assigned_user_id' => 'nullable|exists:users,id',

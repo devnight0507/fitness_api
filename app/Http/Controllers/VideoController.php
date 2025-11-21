@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Workout;
+use App\Models\WorkoutExercise;
 use App\Models\ViewLog;
 use App\Services\VideoStream;
 use Illuminate\Http\Request;
@@ -74,6 +75,85 @@ class VideoController extends Controller
 
         // Get video file path
         $videoPath = storage_path('app/public/' . $workout->video_path);
+
+        if (!file_exists($videoPath)) {
+            return response()->json([
+                'message' => 'Video file not found on server'
+            ], 404);
+        }
+
+        // Stream the video
+        $stream = new VideoStream($videoPath);
+        return $stream->start();
+    }
+
+    /**
+     * Stream video for an exercise
+     */
+    public function streamExercise(Request $request, $exerciseId)
+    {
+        // Get user from token (supports both header and query parameter)
+        $user = $request->user();
+
+        // If no user from header, try to get token from query parameter
+        if (!$user && $request->has('token')) {
+            $token = $request->query('token');
+            $personalAccessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+
+            if ($personalAccessToken) {
+                $user = $personalAccessToken->tokenable;
+            }
+        }
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
+        $exercise = WorkoutExercise::with('workout')->find($exerciseId);
+
+        if (!$exercise) {
+            return response()->json([
+                'message' => 'Exercise not found'
+            ], 404);
+        }
+
+        // Check if video exists
+        if (!$exercise->video_path) {
+            return response()->json([
+                'message' => 'No video available for this exercise'
+            ], 404);
+        }
+
+        $workout = $exercise->workout;
+
+        // Check access rights (students can only see assigned workouts)
+        if ($user->role === 'student') {
+            // Check if it's a personal workout assigned directly to this student
+            $isPersonalWorkout = $workout->is_personal && $workout->assigned_user_id == $user->id;
+
+            // Check if it's assigned via user_assignments table
+            $isAssigned = $workout->assignments()
+                ->where('user_id', $user->id)
+                ->exists();
+
+            if (!$isPersonalWorkout && !$isAssigned) {
+                return response()->json([
+                    'message' => 'You do not have access to this video'
+                ], 403);
+            }
+        }
+
+        // Admins can only see their own workout videos
+        if ($user->role === 'admin' && $workout->admin_id !== $user->id) {
+            return response()->json([
+                'message' => 'You do not have access to this video'
+            ], 403);
+        }
+
+        // Get video file path
+        $videoPath = storage_path('app/public/' . $exercise->video_path);
 
         if (!file_exists($videoPath)) {
             return response()->json([
@@ -304,6 +384,89 @@ class VideoController extends Controller
                 'message' => 'Video uploaded successfully',
                 'workout' => $workout,
             ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload video',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Upload video for an exercise (Admin only)
+     */
+    public function uploadExerciseVideo(Request $request)
+    {
+        $user = $request->user();
+
+        // Only admins can upload videos
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can upload videos'
+            ], 403);
+        }
+
+        // Validate the request
+        $validated = $request->validate([
+            'video' => [
+                'required',
+                'file',
+                'max:102400', // 100MB max
+                function ($attribute, $value, $fail) {
+                    $extension = strtolower($value->getClientOriginalExtension());
+                    $allowedExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+
+                    if (!in_array($extension, $allowedExtensions)) {
+                        $fail('The video must be a file of type: mp4, mov, avi, mkv, webm.');
+                    }
+                },
+            ],
+            'exercise_id' => 'nullable|exists:workout_exercises,id',
+        ]);
+
+        try {
+            // If exercise_id is provided, update the exercise
+            if ($request->has('exercise_id')) {
+                $exercise = WorkoutExercise::with('workout')->find($request->exercise_id);
+
+                // Check if admin owns this workout
+                if ($exercise->workout->admin_id !== $user->id) {
+                    return response()->json([
+                        'message' => 'You can only upload videos for your own workout exercises'
+                    ], 403);
+                }
+
+                // Delete old video if exists
+                if ($exercise->video_path) {
+                    Storage::disk('public')->delete($exercise->video_path);
+                }
+
+                // Store video
+                $file = $request->file('video');
+                $filename = 'exercise_' . $exercise->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('videos/exercises', $filename, 'public');
+
+                // Update exercise
+                $exercise->video_path = $path;
+                $exercise->save();
+
+                return response()->json([
+                    'message' => 'Exercise video uploaded successfully',
+                    'exercise' => $exercise,
+                    'video_path' => $path,
+                ]);
+            } else {
+                // No exercise_id provided, just upload the video and return the path
+                $file = $request->file('video');
+                $filename = 'exercise_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('videos/exercises', $filename, 'public');
+
+                return response()->json([
+                    'message' => 'Video uploaded successfully',
+                    'video_path' => $path,
+                ]);
+            }
 
         } catch (\Exception $e) {
             return response()->json([
