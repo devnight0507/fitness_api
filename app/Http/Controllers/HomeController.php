@@ -26,10 +26,18 @@ class HomeController extends Controller
 
         // Student dashboard
         if ($user->role === 'student') {
-            // Get assigned workouts
+            // Get assigned workouts (both via assignments table and personal workouts)
             $workouts = Workout::with(['exercises', 'admin'])
-                ->whereHas('assignments', function ($query) use ($user) {
-                    $query->where('user_id', $user->id);
+                ->where(function($query) use ($user) {
+                    // Global workouts assigned via user_assignments table
+                    $query->whereHas('assignments', function ($q) use ($user) {
+                        $q->where('user_id', $user->id);
+                    })
+                    // OR personal workouts directly assigned to this student
+                    ->orWhere(function($q) use ($user) {
+                        $q->where('is_personal', true)
+                          ->where('assigned_user_id', $user->id);
+                    });
                 })
                 ->where('is_active', true)
                 ->orderBy('created_at', 'desc')
@@ -64,8 +72,16 @@ class HomeController extends Controller
             $data['unread_messages_count'] = $unreadMessagesCount;
 
             // Add counts for mobile app
-            $data['workouts_count'] = Workout::whereHas('assignments', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
+            $data['workouts_count'] = Workout::where(function($query) use ($user) {
+                // Global workouts assigned via user_assignments table
+                $query->whereHas('assignments', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
+                // OR personal workouts directly assigned to this student
+                ->orWhere(function($q) use ($user) {
+                    $q->where('is_personal', true)
+                      ->where('assigned_user_id', $user->id);
+                });
             })->where('is_active', true)->count();
 
             $data['nutrition_plans_count'] = NutritionPlan::whereHas('assignments', function ($query) use ($user) {
