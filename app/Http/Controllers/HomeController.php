@@ -62,6 +62,19 @@ class HomeController extends Controller
             $data['nutrition_plans'] = $nutritionPlans;
             $data['today_events'] = $todayEvents;
             $data['unread_messages_count'] = $unreadMessagesCount;
+
+            // Add counts for mobile app
+            $data['workouts_count'] = Workout::whereHas('assignments', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->where('is_active', true)->count();
+
+            $data['nutrition_plans_count'] = NutritionPlan::whereHas('assignments', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->where('is_active', true)->count();
+
+            $data['upcoming_events_count'] = CalendarEvent::where('user_id', $user->id)
+                ->where('date', '>=', Carbon::today()->toDateString())
+                ->count();
         }
 
         // Admin dashboard
