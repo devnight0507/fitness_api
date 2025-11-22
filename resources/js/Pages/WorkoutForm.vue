@@ -48,9 +48,9 @@ const isSaving = ref(false);
 // Exercise form state
 const exerciseForm = ref({
     name: '',
-    sets: 3,
-    reps: '10',
-    rest: 60,
+    sets: null,
+    reps: '',
+    rest: null,
     notes: '',
     video_path: '',
     youtube_url: '',
@@ -175,9 +175,9 @@ const addExercise = () => {
     // Reset exercise form
     exerciseForm.value = {
         name: '',
-        sets: 3,
-        reps: '10',
-        rest: 60,
+        sets: null,
+        reps: '',
+        rest: null,
         notes: '',
         video_path: '',
         youtube_url: '',
@@ -495,7 +495,7 @@ const goBack = () => {
                             <FireIcon class="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
                             <h3 class="text-xl sm:text-2xl font-bold text-gray-800">Workout Exercises</h3>
                         </div>
-                        <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">Build your personalized workout by adding exercises with sets, reps, and rest times.</p>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">Build your personalized workout by adding exercises. For classes (Pilates, Core, Mobility), you can add just the video without sets/reps/rest.</p>
 
                         <!-- Add Exercise Form -->
                         <div class="bg-gray-50 p-4 sm:p-6 rounded-lg mb-4 sm:mb-6">
@@ -511,31 +511,33 @@ const goBack = () => {
                                     >
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Sets *</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Sets</label>
                                     <input
                                         v-model.number="exerciseForm.sets"
                                         type="number"
                                         min="1"
+                                        placeholder="Optional"
                                         class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
                                     >
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Reps *</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Reps</label>
                                     <input
                                         v-model="exerciseForm.reps"
                                         type="text"
-                                        placeholder="10 or 60s"
+                                        placeholder="10 or 60s (optional)"
                                         class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
                                     >
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 gap-4 mb-4">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Rest (seconds) *</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Rest (seconds)</label>
                                     <input
                                         v-model.number="exerciseForm.rest"
                                         type="number"
                                         min="0"
+                                        placeholder="Optional"
                                         class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
                                     >
                                 </div>
@@ -649,14 +651,17 @@ const goBack = () => {
 
                                     <!-- Exercise Details -->
                                     <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
-                                        <div class="flex items-center gap-1">
+                                        <div v-if="exercise.sets" class="flex items-center gap-1">
                                             <span class="font-semibold">{{ exercise.sets }}</span> sets
                                         </div>
-                                        <div class="flex items-center gap-1">
+                                        <div v-if="exercise.reps" class="flex items-center gap-1">
                                             <span class="font-semibold">{{ exercise.reps }}</span> reps
                                         </div>
-                                        <div class="flex items-center gap-1">
+                                        <div v-if="exercise.rest" class="flex items-center gap-1">
                                             <span class="font-semibold">{{ exercise.rest }}s</span> rest
+                                        </div>
+                                        <div v-if="!exercise.sets && !exercise.reps && !exercise.rest" class="italic text-gray-500">
+                                            (Video-only exercise)
                                         </div>
                                     </div>
 

@@ -56,6 +56,8 @@ const loadWorkouts = async () => {
 
         if (response.ok) {
             workoutsList.value = await response.json();
+        } else if (response.status === 401) {
+            window.location.href = '/admin/login';
         } else {
             showAlert('Failed to load workouts', 'error');
         }
@@ -77,6 +79,8 @@ const loadStudents = async () => {
 
         if (response.ok) {
             studentsList.value = await response.json();
+        } else if (response.status === 401) {
+            window.location.href = '/admin/login';
         }
     } catch (error) {
         console.error('Failed to load students:', error);
