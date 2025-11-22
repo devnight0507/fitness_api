@@ -99,6 +99,8 @@ const savePersonalData = async () => {
             setTimeout(() => {
                 router.reload();
             }, 1000);
+        } else if (response.status === 401) {
+            window.location.href = '/admin/login';
         } else {
             const error = await response.json();
             toast.error(error.message || 'Failed to update profile');

@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // User Profile
     Route::get('/users', [UserController::class, 'index']); // Get users list (admin only)
+    Route::put('/users/{id}', [UserController::class, 'updateStudent']); // Update student (admin only)
     Route::put('/user/profile', [UserController::class, 'updateProfile']);
     Route::post('/user/avatar', [UserController::class, 'uploadAvatar']);
     Route::delete('/user/avatar', [UserController::class, 'deleteAvatar']);

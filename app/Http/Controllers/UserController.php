@@ -21,7 +21,7 @@ class UserController extends Controller
             'weight' => 'sometimes|nullable|numeric|min:0|max:500',
             'height' => 'sometimes|nullable|numeric|min:0|max:300',
             'age' => 'sometimes|nullable|integer|min:1|max:150',
-            'goal' => 'sometimes|nullable|in:weight_loss,muscle_gain,maintenance,general_fitness',
+            'goal' => 'sometimes|nullable|string',
         ]);
 
         // Update only the fields that were provided
@@ -175,5 +175,59 @@ class UserController extends Controller
             ->get();
 
         return response()->json($users);
+    }
+
+    /**
+     * Update student information (admin only)
+     * Allows admins to update their students' profiles
+     */
+    public function updateStudent(Request $request, $id)
+    {
+        $currentUser = $request->user();
+
+        // Only admins can update student profiles
+        if ($currentUser->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admins can update student profiles'
+            ], 403);
+        }
+
+        // Find the student
+        $student = \App\Models\User::find($id);
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found'
+            ], 404);
+        }
+
+        // Check if this student belongs to the admin
+        if ($student->admin_id !== $currentUser->id) {
+            return response()->json([
+                'message' => 'You can only update your own students'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|unique:users,email,' . $id,
+            'weight' => 'sometimes|nullable|numeric|min:0|max:500',
+            'height' => 'sometimes|nullable|numeric|min:0|max:300',
+            'age' => 'sometimes|nullable|integer|min:1|max:150',
+            'goal' => 'sometimes|nullable|string',
+            'injuries' => 'sometimes|nullable|string',
+            'notes' => 'sometimes|nullable|string',
+        ]);
+
+        // Update the student
+        $student->update($validated);
+
+        // Reload student with admin relationship
+        $student->load('admin');
+
+        return response()->json([
+            'message' => 'Student profile updated successfully',
+            'user' => $student,
+        ]);
     }
 }
