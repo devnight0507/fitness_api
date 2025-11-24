@@ -302,6 +302,90 @@ class SubscriptionController extends Controller
     }
 
     /**
+     * Get feature access based on user's subscription
+     */
+    public function getFeatureAccess(Request $request)
+    {
+        $user = $request->user();
+
+        // Get active subscription
+        $activeSubscription = $user->subscriptions()
+            ->where('status', 'active')
+            ->where('current_period_end', '>', now())
+            ->first();
+
+        // Default - no subscription
+        $features = [
+            'has_subscription' => false,
+            'plan_category' => null,
+            'plan_type' => null,
+            'features' => [
+                'workouts' => false,
+                'nutrition' => false,
+                'chat' => false,
+                'calendar' => false,
+            ],
+            'tabs_visible' => [
+                'home' => true,
+                'workouts' => false,
+                'nutrition' => false,
+                'calendar' => false,
+                'chat' => false,
+                'plans' => true,
+                'profile' => true,
+            ],
+        ];
+
+        if ($activeSubscription) {
+            $features['has_subscription'] = true;
+            $features['plan_category'] = $activeSubscription->plan_category;
+            $features['plan_type'] = $activeSubscription->plan_type;
+            $features['current_period_end'] = $activeSubscription->current_period_end;
+
+            if ($activeSubscription->plan_category === 'StartClass') {
+                // START CLASS - Only workouts
+                $features['features'] = [
+                    'workouts' => true,
+                    'nutrition' => false,
+                    'chat' => false,
+                    'calendar' => false,
+                ];
+                $features['tabs_visible'] = [
+                    'home' => true,
+                    'workouts' => true,
+                    'nutrition' => false,  // Hidden for START CLASS
+                    'calendar' => false,   // Hidden for START CLASS
+                    'chat' => false,       // Hidden for START CLASS
+                    'plans' => true,
+                    'profile' => true,
+                ];
+            } elseif ($activeSubscription->plan_category === 'UpLevel') {
+                // UP LEVEL - All features
+                $features['features'] = [
+                    'workouts' => true,
+                    'nutrition' => true,
+                    'chat' => true,
+                    'calendar' => true,
+                ];
+                $features['tabs_visible'] = [
+                    'home' => true,
+                    'workouts' => true,
+                    'nutrition' => true,
+                    'calendar' => true,
+                    'chat' => true,
+                    'plans' => true,
+                    'profile' => true,
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'access' => $features,
+        ]);
+    }
+
+    /**
      * Helper function to map price_id to plan details
      */
     private function getPlanDetailsByPriceId($priceId)

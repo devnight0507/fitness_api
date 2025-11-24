@@ -115,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions/checkout', [\App\Http\Controllers\SubscriptionController::class, 'createCheckoutSession']);
     Route::get('/subscriptions/active', [\App\Http\Controllers\SubscriptionController::class, 'getActiveSubscription']);
     Route::post('/subscriptions/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancelSubscription']);
+    Route::get('/subscriptions/features', [\App\Http\Controllers\SubscriptionController::class, 'getFeatureAccess']);
 });
 
 // Stripe Webhook (no auth required)

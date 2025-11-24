@@ -94,8 +94,12 @@ class WebhookController extends Controller
         if ($subscription) {
             $subscription->update([
                 'status' => 'active',
-                'current_period_start' => \Carbon\Carbon::createFromTimestamp($invoice->period_start),
-                'current_period_end' => \Carbon\Carbon::createFromTimestamp($invoice->period_end),
+                'current_period_start' => $invoice->period_start
+                    ? \Carbon\Carbon::createFromTimestamp($invoice->period_start)
+                    : null,
+                'current_period_end' => $invoice->period_end
+                    ? \Carbon\Carbon::createFromTimestamp($invoice->period_end)
+                    : null,
             ]);
 
             Log::info('Subscription activated/renewed', [
@@ -121,6 +125,11 @@ class WebhookController extends Controller
         $planCategory = $stripeSubscription->metadata->plan_category ?? 'StartClass';
         $planType = $stripeSubscription->metadata->plan_type ?? 'monthly';
 
+        // Get period dates from subscription items
+        $subscriptionItem = $stripeSubscription->items->data[0] ?? null;
+        $periodStart = $subscriptionItem->current_period_start ?? $stripeSubscription->current_period_start ?? null;
+        $periodEnd = $subscriptionItem->current_period_end ?? $stripeSubscription->current_period_end ?? null;
+
         // Create or update subscription
         Subscription::updateOrCreate(
             ['stripe_subscription_id' => $stripeSubscription->id],
@@ -132,8 +141,12 @@ class WebhookController extends Controller
                 'plan_category' => $planCategory,
                 'plan_type' => $planType,
                 'status' => $stripeSubscription->status,
-                'current_period_start' => \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_start),
-                'current_period_end' => \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_end),
+                'current_period_start' => $periodStart
+                    ? \Carbon\Carbon::createFromTimestamp($periodStart)
+                    : null,
+                'current_period_end' => $periodEnd
+                    ? \Carbon\Carbon::createFromTimestamp($periodEnd)
+                    : null,
             ]
         );
 
@@ -155,8 +168,12 @@ class WebhookController extends Controller
         if ($subscription) {
             $subscription->update([
                 'status' => $stripeSubscription->status,
-                'current_period_start' => \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_start),
-                'current_period_end' => \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_end),
+                'current_period_start' => $stripeSubscription->current_period_start
+                    ? \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_start)
+                    : null,
+                'current_period_end' => $stripeSubscription->current_period_end
+                    ? \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_end)
+                    : null,
                 'canceled_at' => $stripeSubscription->canceled_at
                     ? \Carbon\Carbon::createFromTimestamp($stripeSubscription->canceled_at)
                     : null,
