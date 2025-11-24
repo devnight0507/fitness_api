@@ -162,8 +162,8 @@ class SubscriptionController extends Controller
                     'quantity' => 1,
                 ]],
                 'mode' => 'subscription',
-                'success_url' => config('app.url') . '/payment/success?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => config('app.url') . '/payment/cancel',
+                'success_url' => 'mfitness://payment/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => 'mfitness://payment/failure',
                 'client_reference_id' => $user->id,
                 'customer_email' => $user->email,
                 'metadata' => [
