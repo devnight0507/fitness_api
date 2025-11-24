@@ -101,4 +101,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Students
     Route::get('/students/{id}', [\App\Http\Controllers\StudentController::class, 'show']);
+
+    // Subscriptions
+    Route::get('/subscriptions/plans', [\App\Http\Controllers\SubscriptionController::class, 'getPlans']);
+    Route::post('/subscriptions/checkout', [\App\Http\Controllers\SubscriptionController::class, 'createCheckoutSession']);
+    Route::get('/subscriptions/active', [\App\Http\Controllers\SubscriptionController::class, 'getActiveSubscription']);
+    Route::post('/subscriptions/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancelSubscription']);
 });
+
+// Stripe Webhook (no auth required)
+Route::post('/webhooks/stripe', [\App\Http\Controllers\WebhookController::class, 'handleStripeWebhook']);

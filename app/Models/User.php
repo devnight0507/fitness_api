@@ -95,6 +95,41 @@ class User extends Authenticatable
         return $this->hasMany(CalendarEvent::class);
     }
 
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(Subscription::class)->where('status', 'active')->latest();
+    }
+
+    public function hasActiveSubscription()
+    {
+        return $this->subscriptions()->where('status', 'active')
+            ->where('current_period_end', '>', now())
+            ->exists();
+    }
+
+    public function hasUpLevelAccess()
+    {
+        return $this->subscriptions()
+            ->where('status', 'active')
+            ->where('plan_category', 'UpLevel')
+            ->where('current_period_end', '>', now())
+            ->exists();
+    }
+
+    public function hasStartClassAccess()
+    {
+        return $this->subscriptions()
+            ->where('status', 'active')
+            ->where('plan_category', 'StartClass')
+            ->where('current_period_end', '>', now())
+            ->exists();
+    }
+
     public function viewLogs()
     {
         return $this->hasMany(ViewLog::class);
