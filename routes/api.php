@@ -52,43 +52,51 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/quote/random', [HomeController::class, 'randomQuote']);
     Route::get('/weekly-summary', [HomeController::class, 'weeklySummary']);
 
-    // Workouts
-    Route::get('/workouts', [WorkoutController::class, 'index']);
-    Route::get('/workouts/assigned', [WorkoutController::class, 'assigned']);
-    Route::get('/workouts/{id}', [WorkoutController::class, 'show']);
-    Route::post('/workouts', [WorkoutController::class, 'store']);
-    Route::put('/workouts/{id}', [WorkoutController::class, 'update']);
-    Route::delete('/workouts/{id}', [WorkoutController::class, 'destroy']);
-    Route::get('/workouts/{id}/assignments', [WorkoutController::class, 'getAssignments']);
-    Route::post('/workouts/{id}/assign', [WorkoutController::class, 'assign']);
+    // Workouts - Require any subscription
+    Route::middleware(['subscription'])->group(function () {
+        Route::get('/workouts', [WorkoutController::class, 'index']);
+        Route::get('/workouts/assigned', [WorkoutController::class, 'assigned']);
+        Route::get('/workouts/{id}', [WorkoutController::class, 'show']);
+        Route::post('/workouts', [WorkoutController::class, 'store']);
+        Route::put('/workouts/{id}', [WorkoutController::class, 'update']);
+        Route::delete('/workouts/{id}', [WorkoutController::class, 'destroy']);
+        Route::get('/workouts/{id}/assignments', [WorkoutController::class, 'getAssignments']);
+        Route::post('/workouts/{id}/assign', [WorkoutController::class, 'assign']);
+    });
 
-    // Nutrition Plans
-    Route::get('/nutrition', [NutritionController::class, 'index']);
-    Route::get('/nutrition/assigned', [NutritionController::class, 'assigned']);
-    Route::get('/nutrition/{id}', [NutritionController::class, 'show']);
-    Route::post('/nutrition', [NutritionController::class, 'store']);
-    Route::put('/nutrition/{id}', [NutritionController::class, 'update']);
-    Route::delete('/nutrition/{id}', [NutritionController::class, 'destroy']);
-    Route::post('/nutrition/{id}/assign', [NutritionController::class, 'assign']);
+    // Nutrition Plans - Require UpLevel subscription
+    Route::middleware(['subscription:UpLevel'])->group(function () {
+        Route::get('/nutrition', [NutritionController::class, 'index']);
+        Route::get('/nutrition/assigned', [NutritionController::class, 'assigned']);
+        Route::get('/nutrition/{id}', [NutritionController::class, 'show']);
+        Route::post('/nutrition', [NutritionController::class, 'store']);
+        Route::put('/nutrition/{id}', [NutritionController::class, 'update']);
+        Route::delete('/nutrition/{id}', [NutritionController::class, 'destroy']);
+        Route::post('/nutrition/{id}/assign', [NutritionController::class, 'assign']);
+    });
 
-    // Messages / Chat
-    Route::get('/messages/conversations', [MessageController::class, 'conversations']);
-    Route::get('/messages/has-new', [MessageController::class, 'hasNewMessages']);
-    Route::get('/messages/unread-count', [MessageController::class, 'unreadCount']);
-    Route::get('/messages', [MessageController::class, 'index']);
-    Route::post('/messages', [MessageController::class, 'store']);
-    Route::patch('/messages/{id}/read', [MessageController::class, 'markAsRead']);
-    Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
+    // Messages / Chat - Require UpLevel subscription
+    Route::middleware(['subscription:UpLevel'])->group(function () {
+        Route::get('/messages/conversations', [MessageController::class, 'conversations']);
+        Route::get('/messages/has-new', [MessageController::class, 'hasNewMessages']);
+        Route::get('/messages/unread-count', [MessageController::class, 'unreadCount']);
+        Route::get('/messages', [MessageController::class, 'index']);
+        Route::post('/messages', [MessageController::class, 'store']);
+        Route::patch('/messages/{id}/read', [MessageController::class, 'markAsRead']);
+        Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
+    });
 
-    // Calendar Events
-    Route::get('/calendar', [CalendarController::class, 'index']);
-    Route::get('/calendar/today', [CalendarController::class, 'today']);
-    Route::get('/calendar/grouped', [CalendarController::class, 'grouped']);
-    Route::post('/calendar/bulk', [CalendarController::class, 'storeBulk']);
-    Route::get('/calendar/{id}', [CalendarController::class, 'show']);
-    Route::post('/calendar', [CalendarController::class, 'store']);
-    Route::put('/calendar/{id}', [CalendarController::class, 'update']);
-    Route::delete('/calendar/{id}', [CalendarController::class, 'destroy']);
+    // Calendar Events - Require UpLevel subscription
+    Route::middleware(['subscription:UpLevel'])->group(function () {
+        Route::get('/calendar', [CalendarController::class, 'index']);
+        Route::get('/calendar/today', [CalendarController::class, 'today']);
+        Route::get('/calendar/grouped', [CalendarController::class, 'grouped']);
+        Route::post('/calendar/bulk', [CalendarController::class, 'storeBulk']);
+        Route::get('/calendar/{id}', [CalendarController::class, 'show']);
+        Route::post('/calendar', [CalendarController::class, 'store']);
+        Route::put('/calendar/{id}', [CalendarController::class, 'update']);
+        Route::delete('/calendar/{id}', [CalendarController::class, 'destroy']);
+    });
 
     // Videos (stream is outside auth middleware to support query token)
     Route::get('/videos/{workoutId}/thumbnail', [VideoController::class, 'thumbnail']);

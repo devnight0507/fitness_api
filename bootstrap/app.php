@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
         $middleware->alias([
-            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'subscription' => \App\Http\Middleware\CheckSubscription::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
