@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeCheckoutSession;
 use Stripe\Exception\ApiErrorException;
@@ -21,6 +22,8 @@ class SubscriptionController extends Controller
      */
     public function getPlans(Request $request)
     {
+        $prices = config('services.stripe.prices');
+
         $plans = [
             [
                 'category' => 'StartClass',
@@ -29,8 +32,9 @@ class SubscriptionController extends Controller
                 'plans' => [
                     [
                         'type' => 'monthly',
-                        'price_id' => 'price_1SX42xPDrBJywqOwOp9kxYaX',
+                        'price_id' => $prices['startclass']['monthly'],
                         'price' => 39.00,
+                        'total_price' => 39.00,
                         'currency' => 'eur',
                         'interval' => 'month',
                         'display_price' => '€39/mês',
@@ -38,20 +42,22 @@ class SubscriptionController extends Controller
                     ],
                     [
                         'type' => 'quarterly',
-                        'price_id' => 'price_1SX42cPDrBJywqOwxzoa0Rh0',
+                        'price_id' => $prices['startclass']['quarterly'],
                         'price' => 35.00,
+                        'total_price' => 105.00,
                         'currency' => 'eur',
                         'interval' => '3 months',
-                        'display_price' => '€35/mês',
+                        'display_price' => '€105 (€35/mês)',
                         'discount' => '10%',
                     ],
                     [
                         'type' => 'annual',
-                        'price_id' => 'price_1SX42BPDrBJywqOwTvVSlk1l',
+                        'price_id' => $prices['startclass']['annual'],
                         'price' => 30.00,
+                        'total_price' => 360.00,
                         'currency' => 'eur',
                         'interval' => 'year',
-                        'display_price' => '€30/mês',
+                        'display_price' => '€360 (€30/mês)',
                         'discount' => '25%',
                     ],
                 ],
@@ -81,8 +87,9 @@ class SubscriptionController extends Controller
                 'plans' => [
                     [
                         'type' => 'monthly',
-                        'price_id' => 'price_1SX41tPDrBJywqOw662zPAGR',
+                        'price_id' => $prices['uplevel']['monthly'],
                         'price' => 119.00,
+                        'total_price' => 119.00,
                         'currency' => 'eur',
                         'interval' => 'month',
                         'display_price' => '€119/mês',
@@ -90,20 +97,22 @@ class SubscriptionController extends Controller
                     ],
                     [
                         'type' => 'quarterly',
-                        'price_id' => 'price_1SX40xPDrBJywqOw73rkmi04',
+                        'price_id' => $prices['uplevel']['quarterly'],
                         'price' => 110.00,
+                        'total_price' => 330.00,
                         'currency' => 'eur',
                         'interval' => '3 months',
-                        'display_price' => '€110/mês',
+                        'display_price' => '€330 (€110/mês)',
                         'discount' => '8%',
                     ],
                     [
                         'type' => 'annual',
-                        'price_id' => 'price_1SX40DPDrBJywqOwl8kGNjhn',
+                        'price_id' => $prices['uplevel']['annual'],
                         'price' => 90.00,
+                        'total_price' => 1080.00,
                         'currency' => 'eur',
                         'interval' => 'year',
-                        'display_price' => '€90/mês',
+                        'display_price' => '€1080 (€90/mês)',
                         'discount' => '25%',
                     ],
                 ],
@@ -145,6 +154,24 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         try {
+            // Check if user already has an active subscription
+            $activeSubscription = $user->subscriptions()
+                ->where('status', 'active')
+                ->where('current_period_end', '>', now())
+                ->first();
+
+            if ($activeSubscription) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You already have an active subscription. Please cancel your current subscription before purchasing a new one.',
+                    'active_subscription' => [
+                        'plan_category' => $activeSubscription->plan_category,
+                        'plan_type' => $activeSubscription->plan_type,
+                        'expires_at' => $activeSubscription->current_period_end,
+                    ],
+                ], 400);
+            }
+
             // Map price_id to plan details
             $planDetails = $this->getPlanDetailsByPriceId($validated['price_id']);
 
@@ -167,9 +194,16 @@ class SubscriptionController extends Controller
                 'client_reference_id' => $user->id,
                 'customer_email' => $user->email,
                 'metadata' => [
-                    'user_id' => $user->id,
+                    'user_id' => (string)$user->id,
                     'plan_category' => $planDetails['category'],
                     'plan_type' => $planDetails['type'],
+                ],
+                'subscription_data' => [
+                    'metadata' => [
+                        'user_id' => (string)$user->id,
+                        'plan_category' => $planDetails['category'],
+                        'plan_type' => $planDetails['type'],
+                    ],
                 ],
             ]);
 
@@ -179,9 +213,29 @@ class SubscriptionController extends Controller
                 'checkout_url' => $session->url,
             ]);
         } catch (ApiErrorException $e) {
+            Log::error('Stripe checkout session creation failed', [
+                'user_id' => $user->id,
+                'price_id' => $validated['price_id'],
+                'error' => $e->getMessage(),
+                'stripe_key_configured' => config('services.stripe.secret') ? 'yes' : 'no',
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create checkout session',
+                'error' => $e->getMessage(),
+            ], 500);
+        } catch (\Exception $e) {
+            Log::error('Unexpected error creating checkout session', [
+                'user_id' => $user->id,
+                'price_id' => $validated['price_id'],
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -252,15 +306,17 @@ class SubscriptionController extends Controller
      */
     private function getPlanDetailsByPriceId($priceId)
     {
+        $prices = config('services.stripe.prices');
+
         $priceMap = [
             // Start Class
-            'price_1SX42xPDrBJywqOwOp9kxYaX' => ['category' => 'StartClass', 'type' => 'monthly'],
-            'price_1SX42cPDrBJywqOwxzoa0Rh0' => ['category' => 'StartClass', 'type' => 'quarterly'],
-            'price_1SX42BPDrBJywqOwTvVSlk1l' => ['category' => 'StartClass', 'type' => 'annual'],
+            $prices['startclass']['monthly'] => ['category' => 'StartClass', 'type' => 'monthly'],
+            $prices['startclass']['quarterly'] => ['category' => 'StartClass', 'type' => 'quarterly'],
+            $prices['startclass']['annual'] => ['category' => 'StartClass', 'type' => 'annual'],
             // Up Level
-            'price_1SX41tPDrBJywqOw662zPAGR' => ['category' => 'UpLevel', 'type' => 'monthly'],
-            'price_1SX40xPDrBJywqOw73rkmi04' => ['category' => 'UpLevel', 'type' => 'quarterly'],
-            'price_1SX40DPDrBJywqOwl8kGNjhn' => ['category' => 'UpLevel', 'type' => 'annual'],
+            $prices['uplevel']['monthly'] => ['category' => 'UpLevel', 'type' => 'monthly'],
+            $prices['uplevel']['quarterly'] => ['category' => 'UpLevel', 'type' => 'quarterly'],
+            $prices['uplevel']['annual'] => ['category' => 'UpLevel', 'type' => 'annual'],
         ];
 
         return $priceMap[$priceId] ?? null;

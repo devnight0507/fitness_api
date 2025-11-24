@@ -39,6 +39,18 @@ return [
         'public' => env('STRIPE_PUBLIC_KEY'),
         'secret' => env('STRIPE_SECRET_KEY'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'prices' => [
+            'startclass' => [
+                'monthly' => env('STRIPE_PRICE_STARTCLASS_MONTHLY'),
+                'quarterly' => env('STRIPE_PRICE_STARTCLASS_QUARTERLY'),
+                'annual' => env('STRIPE_PRICE_STARTCLASS_ANNUAL'),
+            ],
+            'uplevel' => [
+                'monthly' => env('STRIPE_PRICE_UPLEVEL_MONTHLY'),
+                'quarterly' => env('STRIPE_PRICE_UPLEVEL_QUARTERLY'),
+                'annual' => env('STRIPE_PRICE_UPLEVEL_ANNUAL'),
+            ],
+        ],
     ],
 
 ];
