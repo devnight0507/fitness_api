@@ -24,6 +24,11 @@ class CheckSubscription
             ], 401);
         }
 
+        // Admins (trainers) bypass subscription check - they create content, not consume it
+        if ($user->role === 'admin') {
+            return $next($request);
+        }
+
         // Check if user has any active subscription
         $activeSubscription = $user->subscriptions()
             ->where('status', 'active')
