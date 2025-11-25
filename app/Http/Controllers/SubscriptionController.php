@@ -290,19 +290,20 @@ class SubscriptionController extends Controller
         }
 
         try {
-            // Cancel subscription at Stripe
+            // Cancel subscription at Stripe (at period end, not immediately)
             $stripeSubscription = \Stripe\Subscription::retrieve($subscription->stripe_subscription_id);
-            $stripeSubscription->cancel();
+            $stripeSubscription->cancel_at_period_end = true;
+            $stripeSubscription->save();
 
-            // Update local subscription
+            // Update local subscription - keep status as 'active' but mark as canceled
+            // This allows access to continue until period end
             $subscription->update([
-                'status' => 'canceled',
                 'canceled_at' => now(),
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Subscription canceled successfully. Access will continue until end of billing period.',
+                'message' => 'Subscription canceled successfully. Access will continue until ' . $subscription->current_period_end->format('M d, Y') . '.',
             ]);
         } catch (ApiErrorException $e) {
             return response()->json([
