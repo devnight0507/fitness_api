@@ -107,7 +107,9 @@ class User extends Authenticatable
 
     public function hasActiveSubscription()
     {
-        return $this->subscriptions()->where('status', 'active')
+        return $this->subscriptions()
+            ->where('status', 'active')
+            ->whereNull('canceled_at')
             ->where('current_period_end', '>', now())
             ->exists();
     }
@@ -116,6 +118,7 @@ class User extends Authenticatable
     {
         return $this->subscriptions()
             ->where('status', 'active')
+            ->whereNull('canceled_at')
             ->where('plan_category', 'UpLevel')
             ->where('current_period_end', '>', now())
             ->exists();
@@ -125,6 +128,7 @@ class User extends Authenticatable
     {
         return $this->subscriptions()
             ->where('status', 'active')
+            ->whereNull('canceled_at')
             ->where('plan_category', 'StartClass')
             ->where('current_period_end', '>', now())
             ->exists();

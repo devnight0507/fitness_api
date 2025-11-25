@@ -154,10 +154,12 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         try {
-            // Check if user already has an active subscription
+            // Check if user already has an active subscription that hasn't been canceled
             $activeSubscription = $user->subscriptions()
                 ->where('status', 'active')
+                ->whereNull('canceled_at')
                 ->where('current_period_end', '>', now())
+                ->orderBy('created_at', 'desc')
                 ->first();
 
             if ($activeSubscription) {
@@ -247,7 +249,13 @@ class SubscriptionController extends Controller
     public function getActiveSubscription(Request $request)
     {
         $user = $request->user();
-        $subscription = $user->subscriptions()->where('status', 'active')->first();
+
+        // Get the most recent active subscription that hasn't been canceled
+        $subscription = $user->subscriptions()
+            ->where('status', 'active')
+            ->whereNull('canceled_at')
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         if (!$subscription) {
             return response()->json([
@@ -268,7 +276,11 @@ class SubscriptionController extends Controller
     public function cancelSubscription(Request $request)
     {
         $user = $request->user();
-        $subscription = $user->subscriptions()->where('status', 'active')->first();
+        $subscription = $user->subscriptions()
+            ->where('status', 'active')
+            ->whereNull('canceled_at')
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         if (!$subscription) {
             return response()->json([
@@ -311,7 +323,9 @@ class SubscriptionController extends Controller
         // Get active subscription
         $activeSubscription = $user->subscriptions()
             ->where('status', 'active')
+            ->whereNull('canceled_at')
             ->where('current_period_end', '>', now())
+            ->orderBy('created_at', 'desc')
             ->first();
 
         // Default - no subscription

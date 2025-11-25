@@ -27,7 +27,9 @@ class CheckSubscription
         // Check if user has any active subscription
         $activeSubscription = $user->subscriptions()
             ->where('status', 'active')
+            ->whereNull('canceled_at')
             ->where('current_period_end', '>', now())
+            ->orderBy('created_at', 'desc')
             ->first();
 
         if (!$activeSubscription) {
