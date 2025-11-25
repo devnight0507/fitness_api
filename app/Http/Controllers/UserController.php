@@ -174,6 +174,26 @@ class UserController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Add subscription information for each user
+        $users->each(function ($user) {
+            $activeSubscription = $user->subscriptions()
+                ->where('status', 'active')
+                ->whereNull('canceled_at')
+                ->where('current_period_end', '>', now())
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $user->subscription = $activeSubscription ? [
+                'id' => $activeSubscription->id,
+                'plan_category' => $activeSubscription->plan_category,
+                'plan_type' => $activeSubscription->plan_type,
+                'status' => $activeSubscription->status,
+                'current_period_start' => $activeSubscription->current_period_start,
+                'current_period_end' => $activeSubscription->current_period_end,
+                'created_at' => $activeSubscription->created_at,
+            ] : null;
+        });
+
         return response()->json($users);
     }
 

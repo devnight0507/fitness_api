@@ -80,10 +80,19 @@ class StudentController extends Controller
         ->with('meals')
         ->get();
 
+        // Get student's active subscription
+        $activeSubscription = $student->subscriptions()
+            ->where('status', 'active')
+            ->whereNull('canceled_at')
+            ->where('current_period_end', '>', now())
+            ->orderBy('created_at', 'desc')
+            ->first();
+
         return response()->json([
             'student' => $student,
             'workouts' => $workouts,
             'nutrition_plans' => $nutritionPlans,
+            'subscription' => $activeSubscription,
         ]);
     }
 

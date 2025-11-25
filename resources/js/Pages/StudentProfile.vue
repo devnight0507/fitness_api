@@ -27,6 +27,7 @@ const isLoading = ref(true);
 const studentData = ref(null);
 const workoutsData = ref([]);
 const nutritionData = ref([]);
+const subscriptionData = ref(null);
 
 // Personal data form
 const personalForm = ref({
@@ -55,6 +56,7 @@ onMounted(async () => {
             studentData.value = data.student;
             workoutsData.value = data.workouts || [];
             nutritionData.value = data.nutrition_plans || [];
+            subscriptionData.value = data.subscription || null;
 
             // Populate form
             personalForm.value = {
@@ -187,6 +189,25 @@ const getLocationIcon = (location) => {
 const getLocationLabel = (location) => {
     return location === 'home' ? 'Home' : 'Gym';
 };
+
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
+const getPlanCategoryLabel = (category) => {
+    if (category === 'StartClass') return 'START CLASS';
+    if (category === 'UpLevel') return 'UP LEVEL';
+    return category;
+};
+
+const getPlanTypeLabel = (type) => {
+    if (type === 'monthly') return 'Monthly';
+    if (type === 'quarterly') return 'Quarterly (3 months)';
+    if (type === 'annual') return 'Annual (12 months)';
+    return type;
+};
 </script>
 
 <template>
@@ -248,6 +269,15 @@ const getLocationLabel = (location) => {
                         ]"
                     >
                         Nutrition ({{ nutritionData.length }})
+                    </button>
+                    <button
+                        @click="activeTab = 'subscription'"
+                        :class="[
+                            'px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base whitespace-nowrap',
+                            activeTab === 'subscription' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ]"
+                    >
+                        Subscription
                     </button>
                 </div>
 
@@ -524,6 +554,161 @@ const getLocationLabel = (location) => {
                                     <PencilIcon class="w-4 h-4 inline-block mr-1" />
                                     Edit Nutrition Plan
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Tab -->
+                <div v-show="activeTab === 'subscription'" class="p-4 sm:p-6 md:p-8">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Subscription Status</h2>
+
+                    <!-- No Subscription -->
+                    <div v-if="!subscriptionData" class="bg-gray-50 rounded-xl p-8 sm:p-12 text-center">
+                        <div class="mb-4">
+                            <svg class="w-16 h-16 sm:w-20 sm:h-20 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-700 mb-2">No Active Subscription</h3>
+                        <p class="text-sm sm:text-base text-gray-600">This student does not have an active subscription.</p>
+                    </div>
+
+                    <!-- Active Subscription -->
+                    <div v-else class="space-y-6">
+                        <!-- Subscription Card -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-300">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span class="text-sm font-semibold text-green-700 uppercase tracking-wide">Active</span>
+                                </div>
+                                <span class="px-3 py-1 bg-purple-600 text-white text-xs font-bold rounded-full uppercase">
+                                    {{ getPlanCategoryLabel(subscriptionData.plan_category) }}
+                                </span>
+                            </div>
+
+                            <h3 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+                                {{ getPlanCategoryLabel(subscriptionData.plan_category) }}
+                            </h3>
+                            <p class="text-base sm:text-lg text-gray-600 mb-6">
+                                {{ getPlanTypeLabel(subscriptionData.plan_type) }}
+                            </p>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Period Start</p>
+                                    <p class="text-base font-bold text-gray-800">{{ formatDate(subscriptionData.current_period_start) }}</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Period End</p>
+                                    <p class="text-base font-bold text-gray-800">{{ formatDate(subscriptionData.current_period_end) }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subscription Details -->
+                        <div class="bg-white rounded-xl p-6 border-2 border-gray-200">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4">Subscription Details</h4>
+
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                    <span class="text-sm font-semibold text-gray-600">Subscription ID</span>
+                                    <span class="text-sm text-gray-800 font-mono">{{ subscriptionData.id }}</span>
+                                </div>
+
+                                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                    <span class="text-sm font-semibold text-gray-600">Stripe Subscription</span>
+                                    <span class="text-sm text-gray-800 font-mono text-right break-all">{{ subscriptionData.stripe_subscription_id }}</span>
+                                </div>
+
+                                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                    <span class="text-sm font-semibold text-gray-600">Stripe Customer</span>
+                                    <span class="text-sm text-gray-800 font-mono text-right break-all">{{ subscriptionData.stripe_customer_id }}</span>
+                                </div>
+
+                                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                    <span class="text-sm font-semibold text-gray-600">Subscribed On</span>
+                                    <span class="text-sm text-gray-800">{{ formatDate(subscriptionData.created_at) }}</span>
+                                </div>
+
+                                <div class="flex justify-between items-center py-2">
+                                    <span class="text-sm font-semibold text-gray-600">Status</span>
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full uppercase">
+                                        {{ subscriptionData.status }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Plan Features -->
+                        <div class="bg-white rounded-xl p-6 border-2 border-gray-200">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4">Plan Features</h4>
+
+                            <div v-if="subscriptionData.plan_category === 'StartClass'" class="space-y-2">
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Unlimited Workout Classes</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Access to All Video Content</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>New Content Added Regularly</span>
+                                </div>
+                            </div>
+
+                            <div v-else-if="subscriptionData.plan_category === 'UpLevel'" class="space-y-2">
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Everything from START CLASS</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Custom Workout Plans</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Custom Nutrition Plans</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Direct Chat with Trainer</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Calendar & Event Scheduling</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Monthly Progress Assessments</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Individual Support & Guidance</span>
+                                </div>
                             </div>
                         </div>
                     </div>
